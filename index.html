@@ -5,15 +5,73 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>5×5 Tracker — Free StrongLifts Workout Log</title>
-  <meta name="description" content="Track your StrongLifts 5×5 barbell program for free. Log Squat, Bench Press, Deadlift, Overhead Press, and Barbell Row. Auto-progresses weights, tracks failures, and deloads — no account needed.">
-  <meta name="keywords" content="5x5 tracker, stronglifts 5x5, barbell workout log, squat bench deadlift tracker, free workout app">
+  <meta name="description" content="Free 5×5 strength training tracker. Auto-progresses weights, tracks sets, deloads automatically. No account, no ads, no cost. Works offline in your browser.">
+  <meta name="keywords" content="5x5 workout tracker, stronglifts alternative, free barbell program, strength training app, 5x5 calculator">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="5×5 Tracker — Free StrongLifts Workout Log">
-  <meta property="og:description" content="Track your StrongLifts 5×5 barbell program for free. Auto-progresses weights and logs every session. No account needed.">
+  <link rel="canonical" href="https://fivebyfive.fit/">
+  <meta property="og:title" content="Free 5×5 Workout Tracker — No Account Required">
+  <meta property="og:description" content="Free 5×5 strength training tracker. Auto-progresses weights, tracks sets, deloads automatically. No account, no cost. Works offline in your browser.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fivebyfive.fit/">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="5×5 Tracker — Free StrongLifts Workout Log">
-  <meta name="twitter:description" content="Track your StrongLifts 5×5 barbell program for free. Auto-progresses weights and logs every session. No account needed.">
+  <meta name="twitter:title" content="Free 5×5 Workout Tracker — No Account Required">
+  <meta name="twitter:description" content="Free 5×5 strength training tracker. Auto-progresses weights, tracks sets, deloads automatically. No account, no cost. Works offline in your browser.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What weight should I start with?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Start with just the bar (45 lb) for most lifts. The program is designed to start light and build over time. If the bar is too heavy for overhead press, start with a lighter barbell or dumbbells."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How often should I train?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Three days per week with at least one rest day between sessions. A typical schedule is Monday/Wednesday/Friday or Tuesday/Thursday/Saturday."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens when I fail a set?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The weight stays the same for your next workout. If you fail at the same weight three sessions in a row, the app automatically deloads by 10%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my data safe?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "All data is stored in your browser's localStorage. Nothing is sent to a server. Use the Export button in Config to back up your data as a JSON file."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this on my phone?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, the app is fully responsive. You can add it to your home screen for an app-like experience."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why 5×5?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "5 sets of 5 reps is the sweet spot for building both strength and muscle as a beginner. It's enough volume to drive adaptation without excessive fatigue."
+        }
+      }
+    ]
+  }
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8595753507108214"
      crossorigin="anonymous"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -666,10 +724,114 @@
       border-left: none;
       border-right: none;
     }
+
+    /* ── Content Sections ───────────────────── */
+    .content-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .content-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    .page-intro {
+      padding: 48px 0 40px;
+    }
+
+    .page-intro h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .page-intro p {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .page-intro .cta-line {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 0;
+    }
+
+    .content-sections {
+      padding: 40px 0 64px;
+    }
+
+    .content-sections section {
+      margin-bottom: 48px;
+    }
+
+    .content-sections h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 0;
+      margin-bottom: 16px;
+      letter-spacing: -0.3px;
+    }
+
+    .content-sections p {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .content-sections p:last-child {
+      margin-bottom: 0;
+    }
+
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .faq-item h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .faq-item p {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-bottom: 0;
+    }
   </style>
 </head>
 
 <body>
+  <div class="content-wrap">
+    <div class="page-intro">
+      <h1>Free 5×5 Workout Tracker — No Account Required</h1>
+      <p>This tool tracks the classic 5×5 barbell strength program: two alternating workouts, three days a week, five compound lifts. It automatically progresses your weights after each successful session and handles deloads when you stall — no spreadsheet or pen required.</p>
+      <p>Everything is stored locally in your browser. There's no login, no sync, no server. Your training data stays on your device.</p>
+      <p class="cta-line">Start tracking below — your data never leaves your device.</p>
+    </div>
+  </div>
+
+  <hr class="content-divider">
+
   <div id="app">
     <header>
       <div class="logo">5×5</div>
@@ -694,6 +856,58 @@
       <div id="view-history" class="view"></div>
       <div id="view-settings" class="view"></div>
     </main>
+  </div>
+
+  <hr class="content-divider">
+
+  <div class="content-wrap">
+    <div class="content-sections">
+
+      <section>
+        <h2>What is 5×5 Training?</h2>
+        <p>The 5×5 program is built around two alternating workouts — Workout A and Workout B — performed three days per week with at least one rest day between sessions. Every exercise is a compound barbell lift, meaning you're loading multiple muscle groups at once rather than isolating individual muscles.</p>
+        <p>Workout A is Squat, Bench Press, and Barbell Row. Workout B is Squat, Overhead Press, and Deadlift. You squat every session; the other lifts rotate. That frequency is intentional — the squat is the cornerstone of the program, and hitting it three times a week accelerates strength development faster than once-a-week leg day ever could.</p>
+        <p>The training is simple: 5 sets of 5 reps for most exercises (deadlift is 1 set of 5), and you add weight every session you complete successfully. That consistent, incremental progression is what makes the program work. Over months, those small jumps compound into significant strength gains. It's one of the most well-proven beginner and early-intermediate programs in existence, and the simplicity is a feature, not a limitation.</p>
+      </section>
+
+      <section>
+        <h2>How the Tracker Works</h2>
+        <p>Start in the Config view to set your beginning weights for each lift. If you've never done these movements before, the bar (45 lb) is the right starting point for most lifts — the weight will go up fast enough.</p>
+        <p>When you're ready to train, hit Start Workout on the home screen. The app loads the correct exercises for that day's workout (A or B) and shows your target weight. Tap each set circle to log it as completed or failed. A rest timer starts automatically — 3 minutes after a successful set, 5 minutes after a failed one.</p>
+        <p>After all sets are logged, tap Finish. The app handles progression automatically: add 5 lb to upper body lifts (bench, overhead press, barbell row) and 10 lb to lower body lifts (squat, deadlift) after a clean session. If you fail any set, the weight stays put and a failure counter increments. Three consecutive failures at the same weight triggers a 10% deload — the weight drops and you build back up from there. This is normal and built into the program design.</p>
+      </section>
+
+      <section>
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>What weight should I start with?</h3>
+            <p>Start with just the bar (45 lb) for most lifts. The program is designed to start light and build — the early sessions will feel easy, but that's the point. Adding weight every workout catches up quickly. If the bar is too heavy for overhead press, start with a lighter barbell or dumbbells until you build enough shoulder stability to press the standard bar.</p>
+          </div>
+          <div class="faq-item">
+            <h3>How often should I train?</h3>
+            <p>Three days per week with at least one full rest day between sessions. The most common schedules are Monday/Wednesday/Friday or Tuesday/Thursday/Saturday. The rest days matter — your muscles grow during recovery, not during the workout itself. Don't train two days back to back on this program.</p>
+          </div>
+          <div class="faq-item">
+            <h3>What happens when I fail a set?</h3>
+            <p>The weight stays the same for your next workout. One failed set doesn't mean much — you might have been under-slept or underfed. If you fail at the same weight three sessions in a row, the app automatically deloads by 10% and resets your failure counter. This is normal and expected as you advance; don't be discouraged by it.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Is my data safe?</h3>
+            <p>All data is stored in your browser's localStorage — a sandboxed storage area on your own device. Nothing is transmitted to any server. The downside is that clearing your browser data will erase your history, so use the Export button in Config regularly to download a JSON backup. You can re-import that file at any time to restore your history and weights.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Can I use this on my phone?</h3>
+            <p>Yes, the app is fully responsive and designed mobile-first. On iOS, tap the Share button in Safari and choose "Add to Home Screen" for an app-like shortcut. On Android, use Chrome's "Add to Home Screen" option from the menu. The page works offline once it's been loaded, since there's nothing to fetch from a server.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Why 5×5?</h3>
+            <p>Five sets of five reps sits in the intersection of strength training and hypertrophy. It's enough volume and enough intensity to drive adaptation in both directions — you get stronger and you build muscle. Higher rep ranges (8–12) favor muscle size but at lower loads; lower rep ranges (1–3) favor max strength but require weights you can't yet handle safely as a beginner. Five reps threads that needle well, and the format is simple enough to stay consistent with for months.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
   </div>
 
   <script>

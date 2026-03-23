@@ -1,4 +1,4 @@
-# workout-tools
+# lift-log
 
 A collection of standalone workout-assist apps. Each tool is a single self-contained HTML file — no build step, no dependencies, no install required. All data is stored locally in the browser via `localStorage`.
 
