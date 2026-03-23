@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Free Couch to 5K Tracker — Run Your First 5K in 9 Weeks | fivebyfive.fit</title>
+  <meta name="description" content="Free Couch to 5K run tracker. Guides every interval, tracks your 9-week progress, plays audio cues. No account needed. Works in your browser.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://fivebyfive.fit/run/">
+  <meta property="og:title" content="Free Couch to 5K Tracker — fivebyfive.fit">
+  <meta property="og:description" content="Free browser-based C25K tracker. Guides every interval, saves progress locally, works offline.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fivebyfive.fit/run/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can I repeat a day if it was too hard?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Don't mark it complete and run it again next session. There's no shame in repeating a week — the program works best when you don't push through sessions before you're ready."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What if I miss a few days?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Pick up where you left off. The program doesn't expire. Missing a week won't erase your fitness; just ease back in at the session you stopped on."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to run three days in a row?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No, and you shouldn't. Rest at least one day between sessions. Mon/Wed/Fri or Tue/Thu/Sat are the standard patterns."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What pace should I run at?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Conversational pace. If you can't hold a short sentence while running, slow down. The goal in the early weeks is time on feet, not speed."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this on a treadmill?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. All intervals are time-based, not distance-based, so the tracker works the same whether you're outside or on a treadmill."
+        }
+      }
+    ]
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/shared.css">
+  <style>
+    /* ── App shell ───────────────────────────── */
+    #app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 0 48px;
+    }
+
+    /* ── App header ──────────────────────────── */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 52px;
+      background: var(--bg);
+      z-index: 10;
+    }
+
+    .app-header-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .app-header-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .btn-cancel {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .btn-cancel:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    /* ── Section padding ─────────────────────── */
+    .app-section {
+      padding: 24px 20px 0;
+    }
+
+    /* ── Week progress bar ───────────────────── */
+    .week-bar-wrap {
+      margin-bottom: 24px;
+    }
+
+    .week-bar-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .week-bar {
+      display: flex;
+      gap: 4px;
+      height: 8px;
+    }
+
+    .week-seg {
+      flex: 1;
+      border-radius: 4px;
+      background: var(--surface2);
+      transition: background 0.2s;
+    }
+
+    .week-seg.done {
+      background: var(--accent);
+    }
+
+    .week-seg.current {
+      background: var(--accent);
+      opacity: 0.45;
+    }
+
+    /* ── Current session card ────────────────── */
+    .session-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .session-card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+
+    .session-card-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* ── Interval list preview ───────────────── */
+    .interval-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .interval-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+    }
+
+    .interval-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .interval-dot.run  { background: var(--success); }
+    .interval-dot.walk { background: #60a5fa; }
+
+    .interval-type {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      width: 32px;
+      flex-shrink: 0;
+    }
+
+    .interval-type.run  { color: var(--success); }
+    .interval-type.walk { color: #60a5fa; }
+
+    .interval-dur {
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+    }
+
+    .interval-count {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .preview-more {
+      font-size: 13px;
+      color: var(--muted);
+      font-style: italic;
+      padding-left: 18px;
+    }
+
+    /* ── Buttons ─────────────────────────────── */
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      background: var(--accent);
+      color: #0a0a0b;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.2px;
+    }
+
+    .btn-primary:hover  { opacity: 0.9; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: color 0.15s, background 0.15s;
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    /* ── History list ────────────────────────── */
+    .history-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .history-item:hover {
+      background: var(--surface2);
+    }
+
+    .history-item-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .history-item-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .history-item-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .history-item-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--success);
+      background: var(--success-dark);
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    .history-empty {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Program complete banner ─────────────── */
+    .program-complete {
+      text-align: center;
+      padding: 32px 20px;
+    }
+
+    .program-complete-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .program-complete h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .program-complete p {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    /* ── Active session view ─────────────────── */
+    #view-session {
+      display: none;
+      text-align: center;
+    }
+
+    .session-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 52px;
+      background: var(--bg);
+      z-index: 10;
+    }
+
+    .session-top-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ── Timer display ───────────────────────── */
+    .timer-wrap {
+      padding: 40px 20px 20px;
+    }
+
+    .interval-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      transition: color 0.2s;
+    }
+
+    .interval-label.run    { color: var(--success); }
+    .interval-label.walk   { color: #60a5fa; }
+    .interval-label.ready  { color: var(--accent); }
+
+    .timer-digits {
+      font-family: 'DM Mono', monospace;
+      font-size: 80px;
+      font-weight: 500;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -2px;
+      margin-bottom: 12px;
+    }
+
+    .interval-progress-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── Session progress bar ────────────────── */
+    .session-progress-wrap {
+      padding: 0 20px 28px;
+    }
+
+    .session-progress-bar {
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .session-progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── Pause / resume buttons ──────────────── */
+    .session-controls {
+      display: flex;
+      gap: 10px;
+      padding: 0 20px 20px;
+    }
+
+    .btn-pause {
+      flex: 1;
+      padding: 15px;
+      background: var(--accent);
+      color: #0a0a0b;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-pause:hover { opacity: 0.9; }
+
+    .btn-session-cancel {
+      padding: 15px 20px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .btn-session-cancel:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    /* ── Next up strip ───────────────────────── */
+    .next-up-strip {
+      margin: 0 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+    }
+
+    .next-up-label {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .next-up-value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .next-up-value.run  { color: var(--success); }
+    .next-up-value.walk { color: #60a5fa; }
+
+    .next-up-dur {
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      margin-left: auto;
+    }
+
+    /* ── Completion view ─────────────────────── */
+    #view-complete {
+      display: none;
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .complete-icon {
+      font-size: 56px;
+      margin-bottom: 20px;
+    }
+
+    .complete-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .complete-session-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .complete-next {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .complete-next-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .complete-next-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ── Responsive ──────────────────────────── */
+    @media (max-width: 400px) {
+      .timer-digits { font-size: 64px; }
+      .interval-label { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="/" class="logo">5×5</a>
+    <div class="site-nav-links">
+      <a href="/5x5/">5×5 Tracker</a>
+      <a href="/run/" class="active">Run</a>
+      <a href="/hiit/">HIIT Timer</a>
+      <a href="/1rm/">1RM Calc</a>
+    </div>
+  </nav>
+
+  <div class="content-wrap">
+    <div class="page-intro">
+      <h1>Free Couch to 5K Tracker — Run Your First 5K in 9 Weeks</h1>
+      <p>Couch to 5K is a nine-week running program designed for complete beginners. This tracker guides you through every interval — telling you exactly when to run and when to walk, timing each segment, and saving your progress automatically.</p>
+    </div>
+  </div>
+
+  <hr class="content-divider">
+
+  <div id="app">
+
+    <!-- Home view -->
+    <div id="view-home">
+      <div class="app-header">
+        <div>
+          <div class="app-header-label" id="home-header-label">Couch to 5K</div>
+          <div class="app-header-sub" id="home-header-sub">9 weeks · 27 sessions</div>
+        </div>
+      </div>
+
+      <div class="app-section">
+        <!-- Week progress bar -->
+        <div class="week-bar-wrap">
+          <div class="week-bar-label">
+            <span>Week progress</span>
+            <span id="week-bar-counter">Week 1 of 9</span>
+          </div>
+          <div class="week-bar" id="week-bar">
+            <div class="week-seg" data-week="1"></div>
+            <div class="week-seg" data-week="2"></div>
+            <div class="week-seg" data-week="3"></div>
+            <div class="week-seg" data-week="4"></div>
+            <div class="week-seg" data-week="5"></div>
+            <div class="week-seg" data-week="6"></div>
+            <div class="week-seg" data-week="7"></div>
+            <div class="week-seg" data-week="8"></div>
+            <div class="week-seg" data-week="9"></div>
+          </div>
+        </div>
+
+        <!-- Current session card -->
+        <div id="home-session-card" class="session-card">
+          <div class="session-card-title" id="home-session-title">Week 1, Day 1</div>
+          <div class="session-card-sub" id="home-session-sub">Session 1 of 27</div>
+          <div class="interval-preview" id="home-interval-preview"></div>
+          <button class="btn-primary" id="btn-start-session">Start Session</button>
+          <button class="btn-secondary" id="btn-reset-session" style="display:none;">Redo This Session</button>
+        </div>
+
+        <!-- Program complete state -->
+        <div id="home-program-complete" class="program-complete" style="display:none;">
+          <div class="program-complete-icon">🏅</div>
+          <h2>Program Complete!</h2>
+          <p>You finished all 9 weeks of Couch to 5K. You can now run 30 minutes continuously. That's a genuine achievement.</p>
+          <button class="btn-secondary" id="btn-restart-program">Restart Program</button>
+        </div>
+
+        <!-- Recent sessions -->
+        <div id="home-history-section">
+          <div class="history-heading">Recent sessions</div>
+          <div class="history-list" id="history-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active session view -->
+    <div id="view-session">
+      <div class="session-top-bar">
+        <div class="session-top-label" id="session-top-label">Week 1, Day 1</div>
+        <button class="btn-cancel" id="btn-cancel-session">Cancel</button>
+      </div>
+
+      <div class="timer-wrap">
+        <div class="interval-label ready" id="interval-label">GET READY</div>
+        <div class="timer-digits" id="timer-digits">0:05</div>
+        <div class="interval-progress-label" id="interval-progress-label">Interval 1 of 1</div>
+      </div>
+
+      <div class="session-progress-wrap">
+        <div class="session-progress-bar">
+          <div class="session-progress-fill" id="session-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="next-up-strip" id="next-up-strip">
+        <span class="next-up-label">Next:</span>
+        <span class="next-up-value" id="next-up-value">—</span>
+        <span class="next-up-dur" id="next-up-dur"></span>
+      </div>
+
+      <div class="session-controls">
+        <button class="btn-pause" id="btn-pause">Pause</button>
+        <button class="btn-session-cancel" id="btn-end-early">End</button>
+      </div>
+    </div>
+
+    <!-- Completion view -->
+    <div id="view-complete">
+      <div class="complete-icon">✓</div>
+      <div class="complete-heading">Session Complete!</div>
+      <div class="complete-session-label" id="complete-session-label">Week 1, Day 1 done</div>
+      <div class="complete-next" id="complete-next-wrap">
+        <div class="complete-next-label">Up next</div>
+        <div class="complete-next-value" id="complete-next-value">Week 1, Day 2</div>
+      </div>
+      <button class="btn-primary" id="btn-return-home">Return Home</button>
+    </div>
+
+  </div><!-- /#app -->
+
+  <hr class="content-divider">
+
+  <div class="content-wrap">
+    <div class="content-sections">
+
+      <section>
+        <h2>What is Couch to 5K?</h2>
+        <p>Couch to 5K (C25K) is a nine-week running program that takes complete beginners from barely running a minute to running 30 continuous minutes — roughly a 5K for most people. You run three sessions per week, and each session follows a structured sequence of walking and running intervals that grow progressively longer.</p>
+        <p>Week 1 is mostly walking, with just 60-second running bursts separated by 90 seconds of walking. By week 9, you run for 30 uninterrupted minutes. The progression is slow by design. One of the most popular beginner running programs in the world, C25K was originally developed by Josh Clark in 1996 and has since helped millions of people become runners.</p>
+        <p>The key insight behind the program is that alternating walking and running lets your cardiovascular system and connective tissue adapt at a pace that prevents injury. You never jump from zero to sustained running — the body is given weeks to catch up to the demands being placed on it. That's why most people who follow the program through completion actually finish it without major setbacks, which is rare in beginner fitness programs.</p>
+      </section>
+
+      <section>
+        <h2>How to Use This Tracker</h2>
+        <p>Open the app and you'll see your current week and day. When you're ready to go, tap Start Session. The large timer display shows exactly how many seconds remain in the current segment, and the label above it tells you whether to run or walk.</p>
+        <p>Audio cues play automatically at every transition — a higher tone signals the start of a run interval, a lower tone signals the start of a walk interval, and countdown beeps warn you that a transition is three seconds away. You don't need to watch the screen the whole time.</p>
+        <p>When the session ends, your progress saves automatically to your browser and the app moves you to the next session. If you want to redo a session, tap the "Redo This Session" button before starting. All data lives locally in your browser — nothing is sent to a server, and nothing is lost between visits as long as you don't clear your browser storage.</p>
+      </section>
+
+      <section>
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>Can I repeat a day if it was too hard?</h3>
+            <div class="faq-answer">Yes. Don't mark it complete and run it again next session. There's no shame in repeating a week — the program works best when you don't push through sessions before you're ready.</div>
+          </div>
+          <div class="faq-item">
+            <h3>What if I miss a few days?</h3>
+            <div class="faq-answer">Pick up where you left off. The program doesn't expire. Missing a week won't erase your fitness; just ease back in at the session you stopped on.</div>
+          </div>
+          <div class="faq-item">
+            <h3>Do I need to run three days in a row?</h3>
+            <div class="faq-answer">No, and you shouldn't. Rest at least one day between sessions. Mon/Wed/Fri or Tue/Thu/Sat are the standard patterns.</div>
+          </div>
+          <div class="faq-item">
+            <h3>What pace should I run at?</h3>
+            <div class="faq-answer">Conversational pace. If you can't hold a short sentence while running, slow down. The goal in the early weeks is time on feet, not speed.</div>
+          </div>
+          <div class="faq-item">
+            <h3>Can I use this on a treadmill?</h3>
+            <div class="faq-answer">Absolutely. All intervals are time-based, not distance-based, so the tracker works the same whether you're outside or on a treadmill.</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <span class="footer-tagline">Built for lifters who just want to lift.</span>
+    <div class="footer-links">
+      <a href="/5x5/">5×5 Tracker</a>
+      <a href="/run/">C25K Runner</a>
+      <a href="/hiit/">HIIT Timer</a>
+      <a href="/1rm/">1RM Calc</a>
+    </div>
+    <span class="footer-copy">© fivebyfive.fit</span>
+  </footer>
+
+  <script>
+    'use strict';
+
+    // ── Program data ────────────────────────────────────────────────────────
+    // Each session: { week, day, intervals: [{type, duration (seconds)}] }
+    const C25K_PROGRAM = (function () {
+      function warmup()  { return { type: 'walk', duration: 5 * 60 }; }
+      function cooldown(){ return { type: 'walk', duration: 5 * 60 }; }
+      function run(s)    { return { type: 'run',  duration: s }; }
+      function walk(s)   { return { type: 'walk', duration: s }; }
+
+      const sessions = [];
+      let dayNum = 1;
+
+      function addSession(week, day, intervalsFn) {
+        sessions.push({ week, day, sessionIndex: dayNum - 1, intervals: intervalsFn() });
+        dayNum++;
+      }
+
+      // Week 1 (days 1-3): warmup, 60s run/90s walk ×8, cooldown
+      for (let d = 1; d <= 3; d++) {
+        addSession(1, d, () => {
+          const ivs = [warmup()];
+          for (let i = 0; i < 8; i++) { ivs.push(run(60)); ivs.push(walk(90)); }
+          ivs.push(cooldown());
+          return ivs;
+        });
+      }
+
+      // Week 2 (days 4-6): warmup, 90s run/2min walk ×6, cooldown
+      for (let d = 1; d <= 3; d++) {
+        addSession(2, d, () => {
+          const ivs = [warmup()];
+          for (let i = 0; i < 6; i++) { ivs.push(run(90)); ivs.push(walk(120)); }
+          ivs.push(cooldown());
+          return ivs;
+        });
+      }
+
+      // Week 3 (days 7-9): warmup, [90s run, 90s walk, 3min run, 3min walk] ×2, cooldown
+      for (let d = 1; d <= 3; d++) {
+        addSession(3, d, () => {
+          const ivs = [warmup()];
+          for (let i = 0; i < 2; i++) {
+            ivs.push(run(90)); ivs.push(walk(90));
+            ivs.push(run(180)); ivs.push(walk(180));
+          }
+          ivs.push(cooldown());
+          return ivs;
+        });
+      }
+
+      // Week 4 (days 10-12): warmup, 3min run, 90s walk, 5min run, 2.5min walk, 3min run, 90s walk, 5min run, cooldown
+      for (let d = 1; d <= 3; d++) {
+        addSession(4, d, () => [
+          warmup(),
+          run(180), walk(90), run(300), walk(150),
+          run(180), walk(90), run(300),
+          cooldown()
+        ]);
+      }
+
+      // Week 5 Day 1 (13): warmup, 5min run, 3min walk, 5min run, 3min walk, 5min run, cooldown
+      addSession(5, 1, () => [
+        warmup(),
+        run(300), walk(180), run(300), walk(180), run(300),
+        cooldown()
+      ]);
+
+      // Week 5 Day 2 (14): warmup, 8min run, 5min walk, 8min run, cooldown
+      addSession(5, 2, () => [
+        warmup(),
+        run(480), walk(300), run(480),
+        cooldown()
+      ]);
+
+      // Week 5 Day 3 (15): warmup, 20min run, cooldown
+      addSession(5, 3, () => [warmup(), run(1200), cooldown()]);
+
+      // Week 6 Day 1 (16): warmup, 5min run, 3min walk, 8min run, 3min walk, 5min run, cooldown
+      addSession(6, 1, () => [
+        warmup(),
+        run(300), walk(180), run(480), walk(180), run(300),
+        cooldown()
+      ]);
+
+      // Week 6 Day 2 (17): warmup, 10min run, 3min walk, 10min run, cooldown
+      addSession(6, 2, () => [
+        warmup(),
+        run(600), walk(180), run(600),
+        cooldown()
+      ]);
+
+      // Week 6 Day 3 (18): warmup, 25min run, cooldown
+      addSession(6, 3, () => [warmup(), run(1500), cooldown()]);
+
+      // Week 7 (days 19-21): warmup, 25min run, cooldown
+      for (let d = 1; d <= 3; d++) {
+        addSession(7, d, () => [warmup(), run(1500), cooldown()]);
+      }
+
+      // Week 8 (days 22-24): warmup, 28min run, cooldown
+      for (let d = 1; d <= 3; d++) {
+        addSession(8, d, () => [warmup(), run(1680), cooldown()]);
+      }
+
+      // Week 9 (days 25-27): warmup, 30min run, cooldown
+      for (let d = 1; d <= 3; d++) {
+        addSession(9, d, () => [warmup(), run(1800), cooldown()]);
+      }
+
+      return sessions;
+    }());
+
+    // ── State ────────────────────────────────────────────────────────────────
+    const LS_KEY = 'fivebyfive_run';
+
+    function defaultState() {
+      return {
+        currentSession: 0,
+        completed: new Array(27).fill(false),
+        startDate: null
+      };
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return defaultState();
+        const s = JSON.parse(raw);
+        if (typeof s.currentSession !== 'number') return defaultState();
+        if (!Array.isArray(s.completed) || s.completed.length !== 27) return defaultState();
+        return s;
+      } catch (_) {
+        return defaultState();
+      }
+    }
+
+    function saveState(s) {
+      localStorage.setItem(LS_KEY, JSON.stringify(s));
+    }
+
+    let state = loadState();
+
+    // ── Audio ────────────────────────────────────────────────────────────────
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function beep(freq, durationMs, gainVal) {
+      try {
+        ensureAudio();
+        const osc  = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(gainVal || 0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + durationMs / 1000);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + durationMs / 1000);
+      } catch (_) { /* audio blocked — silent */ }
+    }
+
+    function beepRun()      { beep(440, 200, 0.3); }
+    function beepWalk()     { beep(220, 250, 0.25); }
+    function beepCountdown(){ beep(660, 80,  0.2); }
+
+    // ── Utility ──────────────────────────────────────────────────────────────
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return m + ':' + String(s).padStart(2, '0');
+    }
+
+    function formatDuration(seconds) {
+      if (seconds < 60) return seconds + 's';
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return s === 0 ? m + 'min' : m + 'min ' + s + 's';
+    }
+
+    function sessionLabel(idx) {
+      const s = C25K_PROGRAM[idx];
+      return 'Week ' + s.week + ', Day ' + s.day;
+    }
+
+    // ── Views ────────────────────────────────────────────────────────────────
+    function showView(id) {
+      ['view-home', 'view-session', 'view-complete'].forEach(v => {
+        document.getElementById(v).style.display = v === id ? 'block' : 'none';
+      });
+    }
+
+    // ── Home view rendering ──────────────────────────────────────────────────
+    function renderHome() {
+      showView('view-home');
+
+      const idx = state.currentSession;
+      const allDone = state.completed.every(Boolean) || idx >= 27;
+
+      // Header
+      document.getElementById('home-header-label').textContent =
+        allDone ? 'Program Complete' : sessionLabel(Math.min(idx, 26));
+      document.getElementById('home-header-sub').textContent =
+        allDone ? '27 sessions done' : 'Session ' + (idx + 1) + ' of 27';
+
+      // Week bar
+      const currentWeek = allDone ? 9 : C25K_PROGRAM[Math.min(idx, 26)].week;
+      const completedWeeks = allDone ? 9 : currentWeek - 1;
+      document.querySelectorAll('#week-bar .week-seg').forEach(seg => {
+        const w = parseInt(seg.dataset.week);
+        seg.classList.remove('done', 'current');
+        if (w <= completedWeeks) seg.classList.add('done');
+        else if (w === currentWeek) seg.classList.add('current');
+      });
+      document.getElementById('week-bar-counter').textContent =
+        allDone ? 'All 9 weeks done' : 'Week ' + currentWeek + ' of 9';
+
+      // Program complete vs session card
+      const sessionCard    = document.getElementById('home-session-card');
+      const completeScreen = document.getElementById('home-program-complete');
+
+      if (allDone) {
+        sessionCard.style.display    = 'none';
+        completeScreen.style.display = 'block';
+      } else {
+        sessionCard.style.display    = 'block';
+        completeScreen.style.display = 'none';
+
+        document.getElementById('home-session-title').textContent = sessionLabel(idx);
+        document.getElementById('home-session-sub').textContent =
+          'Session ' + (idx + 1) + ' of 27';
+
+        // Interval preview (collapsed for long sessions)
+        renderIntervalPreview(idx);
+
+        // Redo button: show if this session was already completed but is still current
+        const redoBtn = document.getElementById('btn-reset-session');
+        redoBtn.style.display = state.completed[idx] ? 'block' : 'none';
+      }
+
+      // Recent history (last 5 completed)
+      renderHistory();
+    }
+
+    function renderIntervalPreview(idx) {
+      const session = C25K_PROGRAM[idx];
+      const container = document.getElementById('home-interval-preview');
+      container.innerHTML = '';
+
+      // Summarise: group consecutive same-type intervals
+      const ivs = session.intervals;
+      const MAX_ROWS = 6;
+
+      // Build display list: show warmup, unique run/walk pattern, cooldown
+      // For brevity, collapse repeated patterns
+      const display = [];
+
+      // Count runs and walks (not warmup/cooldown)
+      const core = ivs.slice(1, ivs.length - 1);
+      const runIntervals  = core.filter(i => i.type === 'run');
+      const walkIntervals = core.filter(i => i.type === 'walk');
+
+      // Always show warmup
+      display.push({ type: 'walk', label: 'Warm-up', dur: ivs[0].duration });
+
+      if (runIntervals.length > 0) {
+        const runDur  = runIntervals[0].duration;
+        const walkDur = walkIntervals.length > 0 ? walkIntervals[0].duration : 0;
+        const allRunSame  = runIntervals.every(r => r.duration === runDur);
+        const allWalkSame = walkIntervals.every(w => w.duration === walkDur);
+
+        if (allRunSame && allWalkSame && runIntervals.length > 1) {
+          // Repeating pattern
+          display.push({
+            type: 'run',
+            label: 'Run',
+            dur: runDur,
+            repeat: runIntervals.length
+          });
+          if (walkIntervals.length > 0) {
+            display.push({
+              type: 'walk',
+              label: 'Walk',
+              dur: walkDur,
+              repeat: walkIntervals.length
+            });
+          }
+        } else {
+          // Show each interval (up to MAX_ROWS - 2 for warmup/cooldown)
+          const limit = MAX_ROWS - 2;
+          for (let i = 0; i < Math.min(core.length, limit); i++) {
+            display.push({ type: core[i].type, label: core[i].type === 'run' ? 'Run' : 'Walk', dur: core[i].duration });
+          }
+          if (core.length > limit) {
+            display.push({ type: 'more', label: '+ ' + (core.length - limit) + ' more intervals' });
+          }
+        }
+      }
+
+      // Always show cooldown
+      display.push({ type: 'walk', label: 'Cool-down', dur: ivs[ivs.length - 1].duration });
+
+      display.forEach(item => {
+        if (item.type === 'more') {
+          const row = document.createElement('div');
+          row.className = 'preview-more';
+          row.textContent = item.label;
+          container.appendChild(row);
+          return;
+        }
+        const row = document.createElement('div');
+        row.className = 'interval-row';
+
+        const dot = document.createElement('div');
+        dot.className = 'interval-dot ' + item.type;
+        row.appendChild(dot);
+
+        const type = document.createElement('div');
+        type.className = 'interval-type ' + item.type;
+        type.textContent = item.label === 'Warm-up' || item.label === 'Cool-down'
+          ? (item.label === 'Warm-up' ? 'WALK' : 'WALK') : item.type.toUpperCase();
+        row.appendChild(type);
+
+        const dur = document.createElement('div');
+        dur.className = 'interval-dur';
+        dur.textContent = item.label !== 'Run' && item.label !== 'Walk'
+          ? item.label + ' · ' + formatDuration(item.dur)
+          : formatDuration(item.dur);
+        row.appendChild(dur);
+
+        if (item.repeat && item.repeat > 1) {
+          const cnt = document.createElement('div');
+          cnt.className = 'interval-count';
+          cnt.textContent = '×' + item.repeat;
+          row.appendChild(cnt);
+        }
+
+        container.appendChild(row);
+      });
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('history-list');
+      list.innerHTML = '';
+
+      // Collect completed sessions in reverse order
+      const done = [];
+      for (let i = 26; i >= 0; i--) {
+        if (state.completed[i]) done.push(i);
+        if (done.length >= 5) break;
+      }
+
+      if (done.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'history-empty';
+        empty.textContent = 'No sessions completed yet. Start your first run above.';
+        list.appendChild(empty);
+        return;
+      }
+
+      done.forEach(i => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+
+        const left = document.createElement('div');
+        left.className = 'history-item-left';
+
+        const label = document.createElement('div');
+        label.className = 'history-item-label';
+        label.textContent = sessionLabel(i);
+        left.appendChild(label);
+
+        const sub = document.createElement('div');
+        sub.className = 'history-item-date';
+        sub.textContent = 'Session ' + (i + 1) + ' of 27';
+        left.appendChild(sub);
+
+        item.appendChild(left);
+
+        const badge = document.createElement('div');
+        badge.className = 'history-item-badge';
+        badge.textContent = 'done';
+        item.appendChild(badge);
+
+        list.appendChild(item);
+      });
+    }
+
+    // ── Active session state ─────────────────────────────────────────────────
+    let sessionState = null;
+    // sessionState = {
+    //   sessionIdx,
+    //   intervals,      // array of {type, duration}
+    //   currentIv,      // current interval index
+    //   remaining,      // seconds left in current interval
+    //   paused,
+    //   tickInterval,
+    //   countdownBeeps, // set of seconds already beeped
+    // }
+
+    function startSession(idx) {
+      // Unlock audio on first user interaction
+      ensureAudio();
+
+      const session = C25K_PROGRAM[idx];
+      sessionState = {
+        sessionIdx: idx,
+        intervals: session.intervals,
+        currentIv: 0,
+        remaining: session.intervals[0].duration,
+        paused: false,
+        tickInterval: null,
+        countdownBeeps: new Set()
+      };
+
+      document.getElementById('session-top-label').textContent = sessionLabel(idx);
+      showView('view-session');
+      updateSessionUI();
+      sessionState.tickInterval = setInterval(tick, 1000);
+    }
+
+    function tick() {
+      if (sessionState.paused) return;
+
+      sessionState.remaining--;
+
+      // 3-2-1 countdown beeps (only once per second)
+      if (sessionState.remaining <= 3 && sessionState.remaining > 0) {
+        if (!sessionState.countdownBeeps.has(sessionState.remaining)) {
+          sessionState.countdownBeeps.add(sessionState.remaining);
+          beepCountdown();
+        }
+      }
+
+      if (sessionState.remaining <= 0) {
+        advanceInterval();
+      } else {
+        updateTimerUI();
+      }
+    }
+
+    function advanceInterval() {
+      sessionState.currentIv++;
+      sessionState.countdownBeeps = new Set();
+
+      if (sessionState.currentIv >= sessionState.intervals.length) {
+        // Session complete
+        finishSession();
+        return;
+      }
+
+      const iv = sessionState.intervals[sessionState.currentIv];
+      sessionState.remaining = iv.duration;
+
+      // Transition beep
+      if (iv.type === 'run') beepRun();
+      else beepWalk();
+
+      updateSessionUI();
+    }
+
+    function updateSessionUI() {
+      updateTimerUI();
+
+      const ivs      = sessionState.intervals;
+      const current  = ivs[sessionState.currentIv];
+      const total    = ivs.length;
+      const ivIndex  = sessionState.currentIv;
+
+      // Interval label
+      const label    = document.getElementById('interval-label');
+      let labelText  = 'WALK';
+      let labelClass = 'walk';
+
+      if (ivIndex === 0) {
+        labelText = 'WARM-UP'; labelClass = 'walk';
+      } else if (ivIndex === total - 1) {
+        labelText = 'COOL-DOWN'; labelClass = 'walk';
+      } else if (current.type === 'run') {
+        labelText = 'RUN'; labelClass = 'run';
+      } else {
+        labelText = 'WALK'; labelClass = 'walk';
+      }
+
+      label.textContent = labelText;
+      label.className   = 'interval-label ' + labelClass;
+
+      // Interval counter (exclude warmup/cooldown from count)
+      const coreTotal  = total - 2;
+      const coreIdx    = ivIndex - 1;
+      let progText;
+      if (ivIndex === 0)           progText = 'Warm-up';
+      else if (ivIndex === total - 1) progText = 'Cool-down';
+      else                         progText = 'Interval ' + coreIdx + ' of ' + coreTotal;
+      document.getElementById('interval-progress-label').textContent = progText;
+
+      // Session progress bar
+      const pct = (ivIndex / total) * 100;
+      document.getElementById('session-progress-fill').style.width = pct + '%';
+
+      // Next up strip
+      const nextIv = ivs[ivIndex + 1];
+      if (nextIv) {
+        let nextLabel = nextIv.type === 'run' ? 'Run' : 'Walk';
+        if (ivIndex + 1 === total - 1) nextLabel = 'Cool-down';
+        const nextEl = document.getElementById('next-up-value');
+        nextEl.textContent  = nextLabel;
+        nextEl.className    = 'next-up-value ' + nextIv.type;
+        document.getElementById('next-up-dur').textContent = formatDuration(nextIv.duration);
+        document.getElementById('next-up-strip').style.display = 'flex';
+      } else {
+        document.getElementById('next-up-strip').style.display = 'none';
+      }
+    }
+
+    function updateTimerUI() {
+      document.getElementById('timer-digits').textContent = formatTime(sessionState.remaining);
+    }
+
+    function pauseSession() {
+      sessionState.paused = true;
+      document.getElementById('btn-pause').textContent = 'Resume';
+    }
+
+    function resumeSession() {
+      ensureAudio();
+      sessionState.paused = false;
+      document.getElementById('btn-pause').textContent = 'Pause';
+    }
+
+    function cancelSession() {
+      if (sessionState && sessionState.tickInterval) {
+        clearInterval(sessionState.tickInterval);
+      }
+      sessionState = null;
+      renderHome();
+    }
+
+    function finishSession() {
+      clearInterval(sessionState.tickInterval);
+      const idx = sessionState.sessionIdx;
+      sessionState = null;
+
+      // Mark complete and advance
+      state.completed[idx] = true;
+      if (state.currentSession <= idx) {
+        state.currentSession = idx + 1;
+      }
+      if (!state.startDate) state.startDate = new Date().toISOString();
+      saveState(state);
+
+      showCompletion(idx);
+    }
+
+    function showCompletion(idx) {
+      showView('view-complete');
+
+      document.getElementById('complete-session-label').textContent =
+        sessionLabel(idx) + ' done';
+
+      const nextWrap = document.getElementById('complete-next-wrap');
+      if (idx + 1 < 27) {
+        document.getElementById('complete-next-value').textContent = sessionLabel(idx + 1);
+        nextWrap.style.display = 'block';
+      } else {
+        nextWrap.style.display = 'none';
+      }
+    }
+
+    // ── Event listeners ──────────────────────────────────────────────────────
+    document.getElementById('btn-start-session').addEventListener('click', () => {
+      const idx = state.currentSession;
+      if (idx >= 27) return;
+      startSession(idx);
+    });
+
+    document.getElementById('btn-reset-session').addEventListener('click', () => {
+      const idx = state.currentSession;
+      if (idx >= 27) return;
+      state.completed[idx] = false;
+      saveState(state);
+      renderHome();
+    });
+
+    document.getElementById('btn-restart-program').addEventListener('click', () => {
+      if (!confirm('Restart the entire C25K program? All progress will be cleared.')) return;
+      state = defaultState();
+      saveState(state);
+      renderHome();
+    });
+
+    document.getElementById('btn-pause').addEventListener('click', () => {
+      if (!sessionState) return;
+      if (sessionState.paused) resumeSession();
+      else pauseSession();
+    });
+
+    document.getElementById('btn-session-cancel').addEventListener('click', () => {
+      if (!confirm('Cancel this session? Progress will not be saved.')) return;
+      cancelSession();
+    });
+
+    document.getElementById('btn-cancel-session').addEventListener('click', () => {
+      if (!confirm('Cancel this session? Progress will not be saved.')) return;
+      cancelSession();
+    });
+
+    document.getElementById('btn-return-home').addEventListener('click', () => {
+      renderHome();
+    });
+
+    // ── Handle mobile screen-off: use visibility API to pause ────────────────
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && sessionState && !sessionState.paused) {
+        pauseSession();
+      }
+    });
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    renderHome();
+  </script>
+</body>
+</html>

@@ -1,1238 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>5×5 Tracker — Free StrongLifts Workout Log</title>
-  <meta name="description" content="Free 5×5 strength training tracker. Auto-progresses weights, tracks sets, deloads automatically. No account, no ads, no cost. Works offline in your browser.">
-  <meta name="keywords" content="5x5 workout tracker, stronglifts alternative, free barbell program, strength training app, 5x5 calculator">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fivebyfive.fit — Free Workout Tools | 5×5 Tracker, Run Planner, HIIT Timer, 1RM Calculator</title>
+  <meta name="description" content="Free browser-based fitness tools. 5×5 barbell tracker, Couch to 5K running program, HIIT interval timer, and one-rep max calculator. No accounts, no ads, no cost.">
+  <meta name="keywords" content="free workout tools, 5x5 tracker, couch to 5k, hiit timer, one rep max calculator, barbell program, strength training">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://fivebyfive.fit/">
-  <meta property="og:title" content="Free 5×5 Workout Tracker — No Account Required">
-  <meta property="og:description" content="Free 5×5 strength training tracker. Auto-progresses weights, tracks sets, deloads automatically. No account, no cost. Works offline in your browser.">
+  <meta property="og:title" content="fivebyfive.fit — Free Workout Tools">
+  <meta property="og:description" content="Free browser-based fitness tools. 5×5 barbell tracker, Couch to 5K running program, HIIT interval timer, and one-rep max calculator. No accounts, no cost.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://fivebyfive.fit/">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Free 5×5 Workout Tracker — No Account Required">
-  <meta name="twitter:description" content="Free 5×5 strength training tracker. Auto-progresses weights, tracks sets, deloads automatically. No account, no cost. Works offline in your browser.">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What weight should I start with?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Start with just the bar (45 lb) for most lifts. The program is designed to start light and build over time. If the bar is too heavy for overhead press, start with a lighter barbell or dumbbells."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How often should I train?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Three days per week with at least one rest day between sessions. A typical schedule is Monday/Wednesday/Friday or Tuesday/Thursday/Saturday."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What happens when I fail a set?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The weight stays the same for your next workout. If you fail at the same weight three sessions in a row, the app automatically deloads by 10%."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is my data safe?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "All data is stored in your browser's localStorage. Nothing is sent to a server. Use the Export button in Config to back up your data as a JSON file."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Can I use this on my phone?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes, the app is fully responsive. You can add it to your home screen for an app-like experience."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Why 5×5?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "5 sets of 5 reps is the sweet spot for building both strength and muscle as a beginner. It's enough volume to drive adaptation without excessive fatigue."
-        }
-      }
-    ]
-  }
-  </script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8595753507108214"
-     crossorigin="anonymous"></script>
+  <meta name="twitter:title" content="fivebyfive.fit — Free Workout Tools">
+  <meta name="twitter:description" content="Free browser-based fitness tools. 5×5 tracker, C25K runner, HIIT timer, 1RM calculator. No accounts, no cost.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/shared.css">
   <style>
-    :root {
-      --bg: #0a0a0b;
-      --surface: #141416;
-      --surface2: #1c1c20;
-      --border: #2a2a2f;
-      --text: #e8e6e3;
-      --muted: #7a7880;
-      --accent: #d4f534;
-      --accent-dark: #1a1f08;
-      --success: #22c55e;
-      --success-dark: #0f2a10;
-      --fail: #ef4444;
-      --fail-dark: #2a0a0a;
-    }
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    #app {
-      max-width: 480px;
+    /* ── Landing Hero ───────────────────────────────── */
+    .hero {
+      max-width: 680px;
       margin: 0 auto;
-      padding-bottom: 40px;
+      padding: 64px 20px 48px;
     }
 
-    /* ── Header ─────────────────────────────── */
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--bg);
-      z-index: 10;
-    }
-
-    .logo {
+    .hero-eyebrow {
       font-family: 'DM Mono', monospace;
-      font-size: 20px;
-      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
       color: var(--accent);
-      letter-spacing: -1px;
-    }
-
-    nav {
-      display: flex;
-      gap: 4px;
-    }
-
-    .nav-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-family: 'Outfit', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 6px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .nav-btn.active {
-      background: var(--surface2);
-      color: var(--text);
-    }
-
-    main {
-      padding: 0 20px;
-    }
-
-    .view {
-      display: none;
-      padding-top: 24px;
-    }
-
-    .view.active {
       display: block;
+      margin-bottom: 16px;
     }
 
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
+    .hero h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
+    .hero p {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 560px;
+    }
+
+    /* ── Tool Cards ─────────────────────────────────── */
+    .tools-section {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 20px 64px;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 540px) {
+      .tools-grid {
+        grid-template-columns: 1fr;
       }
     }
 
-    @keyframes timerPulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.02);
-      }
+    .tool-card {
+      display: block;
+      text-decoration: none;
+      padding: 24px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .anim-up {
-      animation: slideUp 0.3s ease both;
+    .tool-card:hover {
+      border-color: rgba(212, 245, 52, 0.4);
+      box-shadow: 0 0 0 1px rgba(212, 245, 52, 0.12), 0 4px 24px rgba(0,0,0,0.3);
     }
 
-    /* ── Home ───────────────────────────────── */
-    .hero-label {
+    .tool-card-icon {
       font-family: 'DM Mono', monospace;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .hero-type {
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: -1.5px;
-      margin-bottom: 28px;
-    }
-
-    .preview-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-
-    .preview-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      background: var(--surface);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .preview-name {
-      font-size: 15px;
-      font-weight: 600;
-      display: block;
-    }
-
-    .preview-detail {
-      font-size: 13px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-    }
-
-    .preview-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
       color: var(--accent);
       background: var(--accent-dark);
+      display: inline-block;
       padding: 4px 10px;
-      border-radius: 8px;
-      font-weight: 500;
-    }
-
-    .btn-start {
-      width: 100%;
-      padding: 16px 0;
-      background: var(--accent);
-      color: #0a0a0b;
-      border: none;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: 700;
-      font-family: 'Outfit', sans-serif;
-      cursor: pointer;
-      letter-spacing: -0.3px;
-    }
-
-    .btn-start:active {
-      transform: scale(0.98);
-    }
-
-    .last-session {
-      margin-top: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 12px 0;
-      border-top: 1px solid var(--border);
-    }
-
-    .last-label {
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-family: 'DM Mono', monospace;
-    }
-
-    .last-detail {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    /* ── Workout ────────────────────────────── */
-    .workout-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .btn-cancel {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--muted);
-      font-size: 16px;
-      cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .workout-title {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .timer-bar {
-      margin-bottom: 20px;
-      padding: 12px 16px;
-      background: var(--surface);
-      border-radius: 12px;
-      border: 1px solid rgba(212, 245, 52, 0.2);
-      animation: timerPulse 2s ease infinite;
-      display: none;
-    }
-
-    .timer-bar.active {
-      display: block;
-    }
-
-    .timer-inner {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .timer-label {
-      font-size: 12px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .timer-value {
-      font-size: 24px;
-      font-weight: 700;
-      font-family: 'DM Mono', monospace;
-      color: var(--accent);
-      flex: 1;
-    }
-
-    .btn-skip {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: 'Outfit', sans-serif;
-      font-size: 12px;
-      padding: 4px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .ex-block {
-      margin-bottom: 24px;
-      padding: 18px 16px;
-      background: var(--surface);
-      border-radius: 14px;
-      border: 1px solid var(--border);
-    }
-
-    .ex-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
+      border-radius: 6px;
       margin-bottom: 14px;
     }
 
-    .ex-name {
-      font-size: 16px;
-      font-weight: 600;
+    .tool-card h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
     }
 
-    .ex-weight {
+    .tool-card p {
+      font-family: 'Outfit', sans-serif;
       font-size: 14px;
-      font-weight: 500;
-      font-family: 'DM Mono', monospace;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .tool-card .card-cta {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 13px;
+      font-weight: 600;
       color: var(--accent);
     }
 
-    .sets-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .set-btn {
-      flex: 1;
-      aspect-ratio: 1;
-      max-width: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface2);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.15s;
-      font-family: 'DM Mono', monospace;
-    }
-
-    .set-btn .reps {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .set-btn.success {
-      background: var(--success-dark);
-      border-color: var(--success);
-    }
-
-    .set-btn.success .check {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--success);
-    }
-
-    .set-btn.fail {
-      background: var(--fail-dark);
-      border-color: var(--fail);
-    }
-
-    .set-btn.fail .x-mark {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--fail);
-    }
-
-    .set-legend {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 8px;
-      font-family: 'DM Mono', monospace;
-    }
-
-    .btn-finish {
-      width: 100%;
-      padding: 16px 0;
-      background: var(--success);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: 700;
-      font-family: 'Outfit', sans-serif;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s;
-    }
-
-    .btn-finish:disabled {
-      opacity: 0.35;
-      cursor: default;
-    }
-
-    /* ── History ────────────────────────────── */
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      letter-spacing: -0.5px;
-    }
-
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 0;
-      gap: 12px;
-    }
-
-    .empty-icon {
-      font-size: 40px;
-      color: var(--border);
-    }
-
-    .empty-text {
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .history-card {
-      padding: 16px;
-      background: var(--surface);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      margin-bottom: 10px;
-    }
-
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .history-type {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .history-date {
-      font-size: 12px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-    }
-
-    .history-ex {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 0;
-      border-top: 1px solid var(--border);
-    }
-
-    .history-ex-name {
-      font-size: 13px;
-      font-weight: 500;
-      min-width: 110px;
-    }
-
-    .history-ex-detail {
-      font-size: 12px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      flex: 1;
-    }
-
-    .history-dots {
-      display: flex;
-      gap: 4px;
-    }
-
-    .history-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 4px;
-    }
-
-    /* ── Settings ───────────────────────────── */
-    .settings-hint {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-
-    .setting-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .setting-label {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .weight-adjust {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .btn-adjust {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 18px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .weight-display {
-      font-size: 16px;
-      font-weight: 600;
-      font-family: 'DM Mono', monospace;
-      min-width: 70px;
-      text-align: center;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 24px 0;
-    }
-
-    .rules-card {
-      padding: 14px 16px;
-      background: var(--surface);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .rule-text {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .rule-text strong {
-      color: var(--text);
-    }
-
-    .btn-export {
-      width: 100%;
-      padding: 14px 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--accent);
-      font-size: 14px;
-      font-weight: 600;
-      font-family: 'Outfit', sans-serif;
-      cursor: pointer;
-    }
-
-    .btn-reset {
-      width: 100%;
-      padding: 14px 0;
-      background: none;
-      border: 1px solid rgba(239, 68, 68, 0.27);
-      border-radius: 12px;
-      color: var(--fail);
-      font-size: 14px;
-      font-weight: 600;
-      font-family: 'Outfit', sans-serif;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-
-    .confirm-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .confirm-text {
-      font-size: 14px;
-      color: var(--fail);
-      flex: 1;
-    }
-
-    .btn-confirm-yes {
-      padding: 10px 18px;
-      background: var(--fail);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .btn-confirm-no {
-      padding: 10px 18px;
-      background: var(--surface2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    /* ── Ads ────────────────────────────────── */
-    .ad-slot {
-      width: 100%;
-      min-height: 100px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      font-size: 11px;
-      font-family: 'DM Mono', monospace;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      overflow: hidden;
-    }
-
-    .ad-slot-banner {
-      min-height: 60px;
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
-    }
-
-    /* ── Content Sections ───────────────────── */
-    .content-wrap {
+    /* ── Why Section ────────────────────────────────── */
+    .why-section {
       max-width: 680px;
       margin: 0 auto;
-      padding: 0 20px;
+      padding: 0 20px 80px;
     }
 
-    .content-divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0;
-    }
-
-    .page-intro {
-      padding: 48px 0 40px;
-    }
-
-    .page-intro h1 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -0.5px;
-      margin-bottom: 16px;
-      line-height: 1.3;
-    }
-
-    .page-intro p {
-      font-family: 'Outfit', sans-serif;
-      font-size: 15px;
-      line-height: 1.7;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    .page-intro .cta-line {
-      font-size: 14px;
-      color: var(--accent);
-      font-weight: 600;
-      margin-top: 20px;
-      margin-bottom: 0;
-    }
-
-    .content-sections {
-      padding: 40px 0 64px;
-    }
-
-    .content-sections section {
-      margin-bottom: 48px;
-    }
-
-    .content-sections h2 {
+    .why-section h2 {
       font-family: 'Outfit', sans-serif;
       font-size: 24px;
       font-weight: 700;
       color: var(--text);
-      margin-top: 0;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       letter-spacing: -0.3px;
     }
 
-    .content-sections p {
-      font-family: 'Outfit', sans-serif;
+    .why-section p {
       font-size: 15px;
       line-height: 1.7;
       color: var(--muted);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
-    .content-sections p:last-child {
-      margin-bottom: 0;
-    }
-
-    .faq-list {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .faq-item h3 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 10px;
-    }
-
-    .faq-item p {
-      border-left: 3px solid var(--accent);
-      padding-left: 14px;
+    .why-section p:last-child {
       margin-bottom: 0;
     }
   </style>
 </head>
-
 <body>
-  <div class="content-wrap">
-    <div class="page-intro">
-      <h1>Free 5×5 Workout Tracker — No Account Required</h1>
-      <p>This tool tracks the classic 5×5 barbell strength program: two alternating workouts, three days a week, five compound lifts. It automatically progresses your weights after each successful session and handles deloads when you stall — no spreadsheet or pen required.</p>
-      <p>Everything is stored locally in your browser. There's no login, no sync, no server. Your training data stays on your device.</p>
-      <p class="cta-line">Start tracking below — your data never leaves your device.</p>
+  <nav class="site-nav">
+    <a href="/" class="logo">5×5</a>
+    <div class="site-nav-links">
+      <a href="/5x5/">5×5 Tracker</a>
+      <a href="/run/">Run</a>
+      <a href="/hiit/">HIIT Timer</a>
+      <a href="/1rm/">1RM Calc</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <span class="hero-eyebrow">fivebyfive.fit</span>
+    <h1>Free Workout Tools — No Accounts, No Fees, No Tracking</h1>
+    <p>Four standalone fitness tools that run entirely in your browser. No sign-up, no subscription, no data collection. Your workout history lives on your device and goes nowhere else.</p>
+  </div>
+
+  <hr class="content-divider">
+
+  <div class="tools-section">
+    <div class="tools-grid" style="margin-top: 40px;">
+
+      <a href="/5x5/" class="tool-card">
+        <span class="tool-card-icon">Strength</span>
+        <h2>5×5 Strength Tracker</h2>
+        <p>Track the classic 5×5 barbell program. Auto-progresses your weights and deloads when you stall.</p>
+        <span class="card-cta">Open tracker →</span>
+      </a>
+
+      <a href="/run/" class="tool-card">
+        <span class="tool-card-icon">Running</span>
+        <h2>Couch to 5K Runner</h2>
+        <p>Follow a structured run/walk program from zero to 5K. Built-in interval timer guides every session.</p>
+        <span class="card-cta">Start running →</span>
+      </a>
+
+      <a href="/hiit/" class="tool-card">
+        <span class="tool-card-icon">Intervals</span>
+        <h2>HIIT Interval Timer</h2>
+        <p>Configurable work/rest timer with audio cues. Save custom workouts for Tabata, EMOM, and more.</p>
+        <span class="card-cta">Start timer →</span>
+      </a>
+
+      <a href="/1rm/" class="tool-card">
+        <span class="tool-card-icon">Calculator</span>
+        <h2>One-Rep Max Calculator</h2>
+        <p>Estimate your 1RM from any rep count. Includes percentage chart and visual plate loading diagram.</p>
+        <span class="card-cta">Calculate →</span>
+      </a>
+
     </div>
   </div>
 
   <hr class="content-divider">
 
-  <div id="app">
-    <header>
-      <div class="logo">5×5</div>
-      <nav>
-        <button class="nav-btn active" data-view="home">Today</button>
-        <button class="nav-btn" data-view="history">Log</button>
-        <button class="nav-btn" data-view="settings">Config</button>
-      </nav>
-    </header>
-    <!-- Ad: banner below header -->
-    <div class="ad-slot ad-slot-banner">
-      <ins class="adsbygoogle"
-        style="display:block;width:100%;min-height:60px"
-        data-ad-client="ca-pub-8595753507108214"
-        data-ad-slot="BANNER_SLOT_ID"
-        data-ad-format="auto"
-        data-full-width-responsive="true"></ins>
-    </div>
-    <main>
-      <div id="view-home" class="view active"></div>
-      <div id="view-workout" class="view"></div>
-      <div id="view-history" class="view"></div>
-      <div id="view-settings" class="view"></div>
-    </main>
+  <div class="why-section" style="padding-top: 48px;">
+    <h2>Why These Tools?</h2>
+    <p>Most fitness apps are overengineered. They want you to create an account before you've lifted a single rep, push notifications, sync your data to their servers, and eventually upsell you to a paid tier. The tools that do the least tend to charge the most for the privilege of doing it.</p>
+    <p>These four tools do one thing well each. The 5×5 tracker logs your barbell program and handles weight progression automatically. The Couch to 5K runner walks you through nine weeks of intervals until you can run 30 minutes straight. The HIIT timer counts work and rest so you don't have to stare at a clock. The 1RM calculator gives you a percentage chart you can actually use for programming.</p>
+    <p>Everything runs in your browser. There's no server receiving your reps, no account tied to your email, no analytics scripts watching which buttons you tap. Your data lives in your browser's localStorage — meaning it stays on your device, it's private by default, and it works offline once the page has loaded.</p>
+    <p>If you want a backup, every tool has an export button. If you change devices, import that backup. That's the whole data story. No cloud required.</p>
   </div>
 
-  <hr class="content-divider">
-
-  <div class="content-wrap">
-    <div class="content-sections">
-
-      <section>
-        <h2>What is 5×5 Training?</h2>
-        <p>The 5×5 program is built around two alternating workouts — Workout A and Workout B — performed three days per week with at least one rest day between sessions. Every exercise is a compound barbell lift, meaning you're loading multiple muscle groups at once rather than isolating individual muscles.</p>
-        <p>Workout A is Squat, Bench Press, and Barbell Row. Workout B is Squat, Overhead Press, and Deadlift. You squat every session; the other lifts rotate. That frequency is intentional — the squat is the cornerstone of the program, and hitting it three times a week accelerates strength development faster than once-a-week leg day ever could.</p>
-        <p>The training is simple: 5 sets of 5 reps for most exercises (deadlift is 1 set of 5), and you add weight every session you complete successfully. That consistent, incremental progression is what makes the program work. Over months, those small jumps compound into significant strength gains. It's one of the most well-proven beginner and early-intermediate programs in existence, and the simplicity is a feature, not a limitation.</p>
-      </section>
-
-      <section>
-        <h2>How the Tracker Works</h2>
-        <p>Start in the Config view to set your beginning weights for each lift. If you've never done these movements before, the bar (45 lb) is the right starting point for most lifts — the weight will go up fast enough.</p>
-        <p>When you're ready to train, hit Start Workout on the home screen. The app loads the correct exercises for that day's workout (A or B) and shows your target weight. Tap each set circle to log it as completed or failed. A rest timer starts automatically — 3 minutes after a successful set, 5 minutes after a failed one.</p>
-        <p>After all sets are logged, tap Finish. The app handles progression automatically: add 5 lb to upper body lifts (bench, overhead press, barbell row) and 10 lb to lower body lifts (squat, deadlift) after a clean session. If you fail any set, the weight stays put and a failure counter increments. Three consecutive failures at the same weight triggers a 10% deload — the weight drops and you build back up from there. This is normal and built into the program design.</p>
-      </section>
-
-      <section>
-        <h2>Frequently Asked Questions</h2>
-        <div class="faq-list">
-          <div class="faq-item">
-            <h3>What weight should I start with?</h3>
-            <p>Start with just the bar (45 lb) for most lifts. The program is designed to start light and build — the early sessions will feel easy, but that's the point. Adding weight every workout catches up quickly. If the bar is too heavy for overhead press, start with a lighter barbell or dumbbells until you build enough shoulder stability to press the standard bar.</p>
-          </div>
-          <div class="faq-item">
-            <h3>How often should I train?</h3>
-            <p>Three days per week with at least one full rest day between sessions. The most common schedules are Monday/Wednesday/Friday or Tuesday/Thursday/Saturday. The rest days matter — your muscles grow during recovery, not during the workout itself. Don't train two days back to back on this program.</p>
-          </div>
-          <div class="faq-item">
-            <h3>What happens when I fail a set?</h3>
-            <p>The weight stays the same for your next workout. One failed set doesn't mean much — you might have been under-slept or underfed. If you fail at the same weight three sessions in a row, the app automatically deloads by 10% and resets your failure counter. This is normal and expected as you advance; don't be discouraged by it.</p>
-          </div>
-          <div class="faq-item">
-            <h3>Is my data safe?</h3>
-            <p>All data is stored in your browser's localStorage — a sandboxed storage area on your own device. Nothing is transmitted to any server. The downside is that clearing your browser data will erase your history, so use the Export button in Config regularly to download a JSON backup. You can re-import that file at any time to restore your history and weights.</p>
-          </div>
-          <div class="faq-item">
-            <h3>Can I use this on my phone?</h3>
-            <p>Yes, the app is fully responsive and designed mobile-first. On iOS, tap the Share button in Safari and choose "Add to Home Screen" for an app-like shortcut. On Android, use Chrome's "Add to Home Screen" option from the menu. The page works offline once it's been loaded, since there's nothing to fetch from a server.</p>
-          </div>
-          <div class="faq-item">
-            <h3>Why 5×5?</h3>
-            <p>Five sets of five reps sits in the intersection of strength training and hypertrophy. It's enough volume and enough intensity to drive adaptation in both directions — you get stronger and you build muscle. Higher rep ranges (8–12) favor muscle size but at lower loads; lower rep ranges (1–3) favor max strength but require weights you can't yet handle safely as a beginner. Five reps threads that needle well, and the format is simple enough to stay consistent with for months.</p>
-          </div>
-        </div>
-      </section>
-
+  <footer class="site-footer">
+    <span class="footer-tagline">Built for lifters who just want to lift.</span>
+    <div class="footer-links">
+      <a href="/5x5/">5×5 Tracker</a>
+      <a href="/run/">C25K Runner</a>
+      <a href="/hiit/">HIIT Timer</a>
+      <a href="/1rm/">1RM Calc</a>
     </div>
-  </div>
-
-  <script>
-    // ── Config ───────────────────────────────────────────────────────
-    const PROGRAM = {
-      A: [
-        { id: 'squat', name: 'Squat', sets: 5, reps: 5, increment: 10 },
-        { id: 'bench', name: 'Bench Press', sets: 5, reps: 5, increment: 5 },
-        { id: 'row', name: 'Barbell Row', sets: 5, reps: 5, increment: 5 },
-      ],
-      B: [
-        { id: 'squat', name: 'Squat', sets: 5, reps: 5, increment: 10 },
-        { id: 'ohp', name: 'Overhead Press', sets: 5, reps: 5, increment: 5 },
-        { id: 'deadlift', name: 'Deadlift', sets: 1, reps: 5, increment: 10 },
-      ],
-    };
-    const DEFAULT_WEIGHTS = { squat: 45, bench: 45, row: 65, ohp: 45, deadlift: 95 };
-    const DELOAD_FACTOR = 0.9;
-    const FAIL_THRESHOLD = 3;
-    const REST_SECONDS = 180;
-    const FAIL_REST_SECONDS = 300;
-    const STORAGE_KEY = 'fivebyfive_data';
-    const ALL_EXERCISES = [
-      { id: 'squat', name: 'Squat' },
-      { id: 'bench', name: 'Bench Press' },
-      { id: 'row', name: 'Barbell Row' },
-      { id: 'ohp', name: 'Overhead Press' },
-      { id: 'deadlift', name: 'Deadlift' },
-    ];
-
-    // ── State ────────────────────────────────────────────────────────
-    let state, activeWorkout = null, timerInterval = null, timerSeconds = null, currentView = 'home';
-
-    function freshState() {
-      return {
-        weights: { ...DEFAULT_WEIGHTS },
-        failCounts: { squat: 0, bench: 0, row: 0, ohp: 0, deadlift: 0 },
-        nextWorkout: 'A',
-        history: [],
-      };
-    }
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) return JSON.parse(raw);
-      } catch { }
-      return freshState();
-    }
-
-    function save() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { }
-    }
-
-    // ── Helpers ──────────────────────────────────────────────────────
-    const roundTo5 = n => Math.round(n / 5) * 5;
-    const formatDate = iso => new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => document.querySelectorAll(sel);
-
-    // ── Navigation ──────────────────────────────────────────────────
-    function navigate(viewId) {
-      if (currentView === 'workout' && viewId !== 'workout' && viewId !== '_force') return;
-      if (viewId === '_force') viewId = 'home';
-      currentView = viewId;
-      $$('.view').forEach(v => v.classList.remove('active'));
-      $(`#view-${viewId}`).classList.add('active');
-      $$('.nav-btn').forEach(b => b.classList.remove('active'));
-      $(`.nav-btn[data-view="${viewId === 'workout' ? 'home' : viewId}"]`)?.classList.add('active');
-      renderView(viewId);
-    }
-
-    // ── Timer ────────────────────────────────────────────────────────
-    function startTimer(seconds) {
-      stopTimer();
-      timerSeconds = seconds;
-      updateTimerDisplay();
-      const bar = $('#timer-bar');
-      if (bar) bar.classList.add('active');
-      timerInterval = setInterval(() => {
-        timerSeconds--;
-        if (timerSeconds <= 0) { stopTimer(); return; }
-        updateTimerDisplay();
-      }, 1000);
-    }
-
-    function stopTimer() {
-      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-      timerSeconds = null;
-      const bar = $('#timer-bar');
-      if (bar) bar.classList.remove('active');
-    }
-
-    function updateTimerDisplay() {
-      const el = $('#timer-value');
-      if (el && timerSeconds !== null) {
-        el.textContent = `${Math.floor(timerSeconds / 60)}:${String(timerSeconds % 60).padStart(2, '0')}`;
-      }
-    }
-
-    // ── Render: Home ─────────────────────────────────────────────────
-    function renderHome() {
-      const type = state.nextWorkout;
-      const exercises = PROGRAM[type];
-      const last = state.history[0];
-
-      let h = `<div><span class="hero-label">Next Workout</span><div class="hero-type">Workout ${type}</div></div><div class="preview-list">`;
-
-      exercises.forEach((ex, i) => {
-        h += `<div class="preview-card anim-up" style="animation-delay:${i * 80}ms">
-      <div><span class="preview-name">${ex.name}</span><span class="preview-detail">${ex.sets}×${ex.reps} @ ${state.weights[ex.id]} lb</span></div>
-      <div class="preview-badge">+${ex.increment}</div></div>`;
-      });
-
-      h += `</div><button class="btn-start" onclick="startWorkout()">Start Workout</button>`;
-      if (last) h += `<div class="last-session"><span class="last-label">Last session</span><span class="last-detail">Workout ${last.type} · ${formatDate(last.date)}</span></div>`;
-      h += `<div style="margin-top:24px"><div class="ad-slot"><ins class="adsbygoogle" style="display:block;width:100%;min-height:100px" data-ad-client="ca-pub-8595753507108214" data-ad-slot="HOME_INLINE_SLOT_ID" data-ad-format="auto" data-full-width-responsive="true"></ins></div></div>`;
-
-      $('#view-home').innerHTML = h;
-      pushAds();
-    }
-
-    // ── Render: Workout ──────────────────────────────────────────────
-    function renderWorkout() {
-      if (!activeWorkout) return;
-      const w = activeWorkout;
-      const allComplete = w.exercises.every(ex => ex.completedSets.every(s => s !== null));
-
-      let h = `<div class="workout-header"><button class="btn-cancel" onclick="cancelWorkout()">✕</button><span class="workout-title">Workout ${w.type}</span><div style="width:36px"></div></div>
-    <div class="timer-bar" id="timer-bar"><div class="timer-inner"><span class="timer-label">Rest</span><span class="timer-value" id="timer-value">0:00</span><button class="btn-skip" onclick="stopTimer()">Skip</button></div></div>`;
-
-      w.exercises.forEach((ex, ei) => {
-        h += `<div class="ex-block anim-up" style="animation-delay:${ei * 60}ms"><div class="ex-header"><span class="ex-name">${ex.name}</span><span class="ex-weight">${ex.weight} lb</span></div><div class="sets-row">`;
-        ex.completedSets.forEach((s, si) => {
-          const cls = s === true ? 'success' : s === false ? 'fail' : '';
-          const inner = s === null ? `<span class="reps">${ex.reps}</span>` : s === true ? `<span class="check">✓</span>` : `<span class="x-mark">✗</span>`;
-          h += `<button class="set-btn ${cls}" onclick="toggleSet(${ei},${si})">${inner}</button>`;
-        });
-        h += `</div><div class="set-legend">Tap: complete · Tap again: fail · Tap again: reset</div></div>`;
-      });
-
-      h += `<button class="btn-finish" ${allComplete ? '' : 'disabled'} onclick="finishWorkout()">Finish Workout</button>`;
-      $('#view-workout').innerHTML = h;
-
-      if (timerSeconds !== null) { $('#timer-bar')?.classList.add('active'); updateTimerDisplay(); }
-    }
-
-    // ── Render: History ──────────────────────────────────────────────
-    function renderHistory() {
-      if (!state.history.length) {
-        $('#view-history').innerHTML = `<div class="empty-state"><span class="empty-icon">◎</span><span class="empty-text">No workouts yet. Get after it.</span></div>`;
-        return;
-      }
-      let h = `<h2 class="section-title">Workout Log</h2><div class="ad-slot" style="margin-bottom:16px"><ins class="adsbygoogle" style="display:block;width:100%;min-height:100px" data-ad-client="ca-pub-8595753507108214" data-ad-slot="HISTORY_INLINE_SLOT_ID" data-ad-format="auto" data-full-width-responsive="true"></ins></div>`;
-      state.history.forEach((entry, i) => {
-        h += `<div class="history-card anim-up" style="animation-delay:${i * 40}ms"><div class="history-header"><span class="history-type">Workout ${entry.type}</span><span class="history-date">${formatDate(entry.date)}</span></div>`;
-        entry.exercises.forEach(ex => {
-          const count = ex.sets.filter(Boolean).length;
-          const dots = ex.sets.map(s => `<span class="history-dot" style="background:${s ? 'var(--success)' : 'var(--fail)'}"></span>`).join('');
-          h += `<div class="history-ex"><span class="history-ex-name">${ex.name}</span><span class="history-ex-detail">${ex.weight} lb — ${count}/${ex.sets.length} sets</span><div class="history-dots">${dots}</div></div>`;
-        });
-        h += `</div>`;
-      });
-      $('#view-history').innerHTML = h;
-      pushAds();
-    }
-
-    // ── Render: Settings ─────────────────────────────────────────────
-    function renderSettings() {
-      let h = `<h2 class="section-title">Working Weights</h2><p class="settings-hint">Adjust your current working weight for each lift. The app auto-progresses after successful workouts.</p>`;
-      ALL_EXERCISES.forEach(ex => {
-        h += `<div class="setting-row"><span class="setting-label">${ex.name}</span><div class="weight-adjust"><button class="btn-adjust" onclick="adjustWeight('${ex.id}',-5)">−</button><span class="weight-display" id="w-${ex.id}">${state.weights[ex.id]} lb</span><button class="btn-adjust" onclick="adjustWeight('${ex.id}',5)">+</button></div></div>`;
-      });
-      h += `<div class="divider"></div><h2 class="section-title">Progression Rules</h2>
-    <div class="rules-card">
-      <p class="rule-text"><strong>Success:</strong> All sets completed → weight increases next session (+5 lb upper body, +10 lb lower body)</p>
-      <p class="rule-text"><strong>Failure:</strong> Miss any set → weight stays the same</p>
-      <p class="rule-text"><strong>Deload:</strong> 3 consecutive failures → weight drops 10%</p>
-      <p class="rule-text"><strong>Rest:</strong> 3 min after a successful set, 5 min after a failed set</p>
-    </div>
-    <div class="divider"></div>
-    <h2 class="section-title">Data</h2>
-    <button class="btn-export" onclick="exportData()">Export Save Data (JSON)</button>
-    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
-    <button class="btn-export" onclick="document.getElementById('import-file').click()" style="margin-top:10px">Import Save Data (JSON)</button>
-    <div class="confirm-row" id="import-confirm-row" style="display:none"><span class="confirm-text">This will overwrite all current data. Continue?</span><button class="btn-confirm-yes" onclick="confirmImport()">Yes, import</button><button class="btn-confirm-no" onclick="cancelImport()">Cancel</button></div>
-    <button class="btn-reset" id="btn-reset" onclick="confirmReset()">Reset All Data</button>
-    <div class="confirm-row" id="confirm-row" style="display:none"><span class="confirm-text">Delete everything?</span><button class="btn-confirm-yes" onclick="resetAll()">Yes, reset</button><button class="btn-confirm-no" onclick="hideConfirm()">Cancel</button></div>`;
-      $('#view-settings').innerHTML = h;
-    }
-
-    // ── Actions ──────────────────────────────────────────────────────
-    function startWorkout() {
-      const type = state.nextWorkout;
-      activeWorkout = {
-        type, startTime: new Date().toISOString(),
-        exercises: PROGRAM[type].map(ex => ({ ...ex, weight: state.weights[ex.id], completedSets: Array(ex.sets).fill(null) })),
-      };
-      stopTimer();
-      currentView = 'workout';
-      navigate('workout');
-    }
-
-    function toggleSet(ei, si) {
-      const ex = activeWorkout.exercises[ei];
-      const cur = ex.completedSets[si];
-      if (cur === null) {
-        ex.completedSets[si] = true;
-        if (!ex.completedSets.every(s => s !== null)) startTimer(REST_SECONDS);
-      } else if (cur === true) {
-        ex.completedSets[si] = false;
-        if (!ex.completedSets.every(s => s !== null)) startTimer(FAIL_REST_SECONDS); else stopTimer();
-      } else {
-        ex.completedSets[si] = null;
-        stopTimer();
-      }
-      renderWorkout();
-    }
-
-    function finishWorkout() {
-      activeWorkout.exercises.forEach(ex => {
-        const allSuccess = ex.completedSets.every(s => s === true);
-        state.history.length; // just referencing for clarity
-        if (allSuccess) {
-          state.weights[ex.id] = ex.weight + ex.increment;
-          state.failCounts[ex.id] = 0;
-        } else {
-          state.failCounts[ex.id] = (state.failCounts[ex.id] || 0) + 1;
-          if (state.failCounts[ex.id] >= FAIL_THRESHOLD) {
-            state.weights[ex.id] = roundTo5(ex.weight * DELOAD_FACTOR);
-            state.failCounts[ex.id] = 0;
-          }
-        }
-      });
-
-      state.nextWorkout = activeWorkout.type === 'A' ? 'B' : 'A';
-      state.history.unshift({
-        date: activeWorkout.startTime, type: activeWorkout.type,
-        exercises: activeWorkout.exercises.map(ex => ({
-          id: ex.id, name: ex.name, weight: ex.weight,
-          sets: ex.completedSets.map(s => s === true), success: ex.completedSets.every(s => s === true),
-        })),
-      });
-
-      save();
-      activeWorkout = null;
-      stopTimer();
-      currentView = 'home';
-      navigate('_force');
-    }
-
-    function cancelWorkout() { activeWorkout = null; stopTimer(); currentView = 'home'; navigate('_force'); }
-
-    function adjustWeight(id, delta) {
-      state.weights[id] = Math.max(0, state.weights[id] + delta);
-      save();
-      const el = $(`#w-${id}`);
-      if (el) el.textContent = `${state.weights[id]} lb`;
-    }
-
-    function exportData() {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `5x5-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    let pendingImport = null;
-
-    function importData(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          if (!parsed.weights || !parsed.history || !parsed.nextWorkout) throw new Error('Invalid format');
-          pendingImport = parsed;
-          $('#import-confirm-row').style.display = 'flex';
-        } catch {
-          alert('Invalid backup file. Please select a valid 5×5 export.');
-        }
-        input.value = '';
-      };
-      reader.readAsText(file);
-    }
-
-    function confirmImport() {
-      if (!pendingImport) return;
-      state = pendingImport;
-      pendingImport = null;
-      save();
-      $('#import-confirm-row').style.display = 'none';
-      renderSettings();
-      renderHome();
-    }
-
-    function cancelImport() {
-      pendingImport = null;
-      $('#import-confirm-row').style.display = 'none';
-    }
-
-    function confirmReset() { $('#btn-reset').style.display = 'none'; $('#confirm-row').style.display = 'flex'; }
-    function hideConfirm() { $('#btn-reset').style.display = ''; $('#confirm-row').style.display = 'none'; }
-    function resetAll() { state = freshState(); save(); hideConfirm(); renderSettings(); renderHome(); }
-
-    function renderView(id) {
-      ({ home: renderHome, workout: renderWorkout, history: renderHistory, settings: renderSettings })[id]?.();
-    }
-
-    // ── Ads ───────────────────────────────────────────────────────────
-    function pushAds() {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch {}
-    }
-
-    // ── Init ─────────────────────────────────────────────────────────
-    state = loadState();
-    $$('.nav-btn').forEach(btn => btn.addEventListener('click', () => navigate(btn.dataset.view)));
-    pushAds(); // banner slot
-    renderHome();
-  </script>
+    <span class="footer-copy">© fivebyfive.fit</span>
+  </footer>
 </body>
-
 </html>

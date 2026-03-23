@@ -42,7 +42,7 @@ Single HTML file with embedded CSS and JavaScript. All state is persisted to `lo
 - Import: reads a `.json` file, validates shape (`weights`, `history`, `nextWorkout`), prompts confirmation before overwriting — uses `pendingImport` variable to hold parsed data until confirmed
 - Reset: clears all state after a two-step confirmation
 
-**Key constants** (top of `<script>`, ~lines 234–250):
+**Key constants** (top of `<script>`):
 - `PROGRAM` — exercise definitions per workout type
 - `DEFAULT_WEIGHTS` — starting weights
 - `FAIL_THRESHOLD` — consecutive failures before deload (default: 3)
@@ -54,6 +54,17 @@ Single HTML file with embedded CSS and JavaScript. All state is persisted to `lo
 - 3 consecutive failures → 10% deload, failCount resets
 
 **Set states** cycle via `toggleSet(exerciseIdx, setIdx)`: `null → 'success' → 'fail' → null`
+
+## Page Structure
+
+The HTML body is structured as:
+1. `.content-wrap > .page-intro` — SEO intro section with H1 and description (above the app)
+2. `hr.content-divider` — 1px border divider
+3. `#app` — the tracker (480px max-width, sticky header, main views)
+4. `hr.content-divider` — 1px border divider
+5. `.content-wrap > .content-sections` — editorial content below the app: "What is 5×5 Training?", "How the Tracker Works", and a 6-question FAQ
+
+Content sections use `max-width: 680px` and are styled separately from the app. Do not modify `#app` or the `<script>` block when editing content sections.
 
 ## Design System
 

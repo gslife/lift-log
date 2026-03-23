@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One-Rep Max Calculator &amp; Plate Loading Chart | fivebyfive.fit</title>
+  <meta name="description" content="Free one-rep max calculator using 5 formulas. Get a full percentage chart for programming and a visual plate loading diagram. No account needed.">
+  <link rel="canonical" href="https://fivebyfive.fit/1rm/">
+  <meta property="og:title" content="One-Rep Max Calculator &amp; Plate Loading Chart — fivebyfive.fit">
+  <meta property="og:description" content="Estimate your 1RM, get a percentage chart for training, and see which plates to load. Free, browser-based, no account.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fivebyfive.fit/1rm/">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Which formula is most accurate?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Brzycki and Epley are the most validated in research. For sets under 10 reps, both tend to come within 5% of a true 1RM. They diverge more at higher rep counts, which is why the average across formulas is more reliable than any single one."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I test my actual one-rep max?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Only if you're experienced, well-warmed-up, and have a spotter or safety equipment. For programming purposes, an estimate from a 3–5 rep set is safer and nearly as useful. Pushing to a true max taxes your central nervous system and takes longer to recover from than a hard working set."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How often should I recalculate?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Every 4–6 weeks, or whenever you hit a notable PR on a working set. If you're on a linear progression program, your weights are going up frequently enough that you may want to update monthly."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does the plate calculator matter?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mental math between sets is error-prone and wastes time. Seeing the exact plate breakdown eliminates mistakes, especially for odd weights like 237.5 lb. The visual diagram also makes it faster to load the bar correctly."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this for kg?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, toggle to kg at the top. All calculations and plate sizes adjust automatically. The plate options switch to standard kg denominations (25, 20, 15, 10, 5, 2.5, 1.25 kg) with a 20 kg barbell."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../assets/shared.css">
+
+  <style>
+    /* ── App Container ───────────────────────────────── */
+    #app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 20px 48px;
+    }
+
+    /* ── Divider ─────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+      border: none;
+    }
+
+    /* ── Unit Toggle ─────────────────────────────────── */
+    .unit-toggle-wrap {
+      display: flex;
+      justify-content: flex-end;
+      padding: 24px 0 4px;
+    }
+
+    .unit-toggle {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .unit-toggle button {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 16px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .unit-toggle button.active {
+      background: var(--accent);
+      color: #0a0a0b;
+    }
+
+    /* ── Input Group ─────────────────────────────────── */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-field label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .input-field input[type="number"] {
+      font-family: 'DM Mono', monospace;
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      width: 100%;
+      outline: none;
+      -moz-appearance: textfield;
+      transition: border-color 0.15s;
+    }
+
+    .input-field input[type="number"]::-webkit-outer-spin-button,
+    .input-field input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .input-field input[type="number"]:focus {
+      border-color: var(--accent);
+    }
+
+    .input-field input[type="number"]::placeholder {
+      color: var(--border);
+    }
+
+    /* ── Reps Slider ─────────────────────────────────── */
+    .reps-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .reps-slider-wrap input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .reps-slider-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    .reps-slider-wrap input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── 1RM Result Display ──────────────────────────── */
+    .result-display {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .result-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+
+    .result-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 56px;
+      font-weight: 500;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .result-unit {
+      font-family: 'DM Mono', monospace;
+      font-size: 20px;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .result-placeholder {
+      font-family: 'DM Mono', monospace;
+      font-size: 48px;
+      font-weight: 500;
+      color: var(--border);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    /* ── Formula Cards ───────────────────────────────── */
+    .formula-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .formula-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .formula-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .formula-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .formula-value .formula-unit {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ── Percentage Table ────────────────────────────── */
+    .pct-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+    }
+
+    .pct-table thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pct-table thead th {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .pct-table thead th:nth-child(2),
+    .pct-table thead th:nth-child(3) {
+      text-align: right;
+    }
+
+    .pct-table tbody tr {
+      border-bottom: 1px solid var(--surface2);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .pct-table tbody tr:hover {
+      background: var(--surface2);
+    }
+
+    .pct-table tbody tr.pct-accent {
+      background: var(--accent-dark);
+    }
+
+    .pct-table tbody tr.pct-accent:hover {
+      background: #232d0a;
+    }
+
+    .pct-table tbody td {
+      padding: 10px 12px;
+      color: var(--text);
+    }
+
+    .pct-table tbody td:first-child {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pct-table tbody tr.pct-accent td:first-child {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .pct-table tbody td:nth-child(2) {
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      text-align: right;
+    }
+
+    .pct-table tbody td:nth-child(3) {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .pct-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .section-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    /* ── Plate Calculator ────────────────────────────── */
+    .plate-calc-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .plate-target-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .plate-target-row label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .plate-target-input {
+      font-family: 'DM Mono', monospace;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      width: 130px;
+      outline: none;
+      -moz-appearance: textfield;
+      transition: border-color 0.15s;
+    }
+
+    .plate-target-input::-webkit-outer-spin-button,
+    .plate-target-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .plate-target-input:focus {
+      border-color: var(--accent);
+    }
+
+    .barbell-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .plate-per-side {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .plate-per-side strong {
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── Plate Diagram ───────────────────────────────── */
+    .plate-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 56px;
+      gap: 0;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+
+    .bar-collar-left,
+    .bar-collar-right {
+      width: 6px;
+      height: 28px;
+      background: #4a4a55;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .bar-sleeve-left,
+    .bar-sleeve-right {
+      width: 16px;
+      height: 14px;
+      background: #3a3a42;
+      flex-shrink: 0;
+    }
+
+    .bar-center {
+      width: 48px;
+      height: 10px;
+      background: #3a3a42;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .plates-left,
+    .plates-right {
+      display: flex;
+      align-items: center;
+      gap: 1px;
+    }
+
+    .plates-left {
+      flex-direction: row-reverse;
+    }
+
+    .plates-right {
+      flex-direction: row;
+    }
+
+    .plate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      overflow: hidden;
+    }
+
+    .plate-text {
+      display: none;
+    }
+
+    @media (min-width: 360px) {
+      .plate-text {
+        display: block;
+      }
+    }
+
+    .plate-breakdown {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .plate-breakdown strong {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .plate-warning {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 12px 0 4px;
+    }
+
+    .plate-warning .warn-tag {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 7px;
+      color: var(--muted);
+      margin-right: 6px;
+    }
+
+    /* ── Hidden state ────────────────────────────────── */
+    .hidden {
+      display: none !important;
+    }
+
+    /* ── App padding top ─────────────────────────────── */
+    .app-top-pad {
+      padding-top: 32px;
+    }
+
+    /* ── Below-chart hint ────────────────────────────── */
+    .click-hint {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      margin-bottom: 8px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="/" class="logo">5×5</a>
+    <div class="site-nav-links">
+      <a href="/5x5/">5×5 Tracker</a>
+      <a href="/run/">Run</a>
+      <a href="/hiit/">HIIT Timer</a>
+      <a href="/1rm/" class="active">1RM Calc</a>
+    </div>
+  </nav>
+
+  <div class="content-wrap">
+    <div class="page-intro">
+      <h1>One-Rep Max Calculator &amp; Plate Loading Chart</h1>
+      <p>Enter the weight you lifted and how many reps you completed. This calculator estimates your one-rep max using five established formulas and gives you a percentage chart you can use to program your training. Click any row to load that weight into the plate calculator and see exactly what to put on the bar.</p>
+    </div>
+  </div>
+
+  <hr class="content-divider">
+
+  <div id="app">
+
+    <!-- Unit Toggle -->
+    <div class="unit-toggle-wrap">
+      <div class="unit-toggle">
+        <button id="btn-lb" class="active" onclick="setUnit('lb')">lb</button>
+        <button id="btn-kg" onclick="setUnit('kg')">kg</button>
+      </div>
+    </div>
+
+    <!-- Inputs -->
+    <div class="input-group">
+      <div class="input-row">
+        <div class="input-field">
+          <label for="input-weight">Weight lifted</label>
+          <input type="number" id="input-weight" min="1" max="9999" step="2.5" placeholder="135">
+        </div>
+        <div class="input-field">
+          <label for="input-reps">Reps performed</label>
+          <input type="number" id="input-reps" min="1" max="20" step="1" placeholder="5">
+        </div>
+      </div>
+      <div>
+        <div class="reps-slider-wrap">
+          <input type="range" id="reps-slider" min="1" max="20" value="5">
+        </div>
+        <div class="slider-labels">
+          <span>1</span>
+          <span>5</span>
+          <span>10</span>
+          <span>15</span>
+          <span>20</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Estimated 1RM -->
+    <div class="result-display">
+      <div class="result-label">Estimated 1RM</div>
+      <div id="result-main">
+        <span class="result-placeholder">—</span>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Formula breakdown -->
+    <div class="section-heading">Formula breakdown</div>
+    <div class="formula-grid" id="formula-grid">
+      <div class="formula-card">
+        <div class="formula-name">Epley</div>
+        <div class="formula-value" id="f-epley"><span style="color:var(--border)">—</span></div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">Brzycki</div>
+        <div class="formula-value" id="f-brzycki"><span style="color:var(--border)">—</span></div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">Lander</div>
+        <div class="formula-value" id="f-lander"><span style="color:var(--border)">—</span></div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">Lombardi</div>
+        <div class="formula-value" id="f-lombardi"><span style="color:var(--border)">—</span></div>
+      </div>
+      <div class="formula-card" style="grid-column: span 1;">
+        <div class="formula-name">O'Conner</div>
+        <div class="formula-value" id="f-oconner"><span style="color:var(--border)">—</span></div>
+      </div>
+    </div>
+
+    <!-- Percentage chart (hidden until calc'd) -->
+    <div id="pct-section" class="hidden">
+      <hr class="divider">
+      <div class="section-heading">Training percentages</div>
+      <p class="click-hint">Click a row to load plates</p>
+      <div class="pct-table-wrap">
+        <table class="pct-table">
+          <thead>
+            <tr>
+              <th>%</th>
+              <th>Weight</th>
+              <th>Reps</th>
+            </tr>
+          </thead>
+          <tbody id="pct-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Plate calculator (hidden until weight set) -->
+    <div id="plate-section" class="hidden">
+      <hr class="divider">
+      <div class="section-heading">Plate calculator</div>
+      <div class="plate-calc-wrap">
+        <div class="plate-target-row">
+          <label for="plate-target">Target</label>
+          <input type="number" class="plate-target-input" id="plate-target" min="0" step="2.5" placeholder="135">
+          <span class="barbell-label" id="barbell-label">45 lb bar</span>
+        </div>
+        <div id="plate-output"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="content-divider">
+
+  <div class="content-wrap">
+    <div class="content-sections">
+
+      <section>
+        <h2>What is a One-Rep Max?</h2>
+        <p>Your one-rep max (1RM) is the maximum weight you can lift for a single repetition with proper form. It is the foundational number for most percentage-based strength programs. Wendler 5/3/1 prescribes every working set as a fraction of your 1RM. Texas Method, nSuns, and similar intermediate programs do the same. Without a reliable 1RM, you are guessing at your training weights, which leads to sessions that are either too easy to drive progress or too taxing to recover from.</p>
+        <p>Testing a true 1RM — warming up methodically, then attempting a single limit rep — requires maximal effort and carries injury risk, particularly for less experienced lifters who have not developed consistent technique under heavy load. A miss near max weight can be dangerous on squats and bench press without a spotter or safety bars in place.</p>
+        <p>Estimating your 1RM from a submaximal set is standard practice for good reason. It is safer, requires no special setup or spotter, fits naturally into a regular training session, and is nearly as useful for programming purposes. Take a set you completed with genuine effort — ideally in the 3–8 rep range — enter the weight and reps here, and you will get a reliable estimate within a few percent of your true max. The estimates become less accurate above 10 reps because muscular endurance and fatigue play an increasingly large role, but for sets of 2–8 reps the common formulas are typically within 5% of a true tested maximum.</p>
+      </section>
+
+      <section>
+        <h2>How the Formulas Work</h2>
+        <p>Each formula approaches the weight-reps relationship differently. Epley (1985) and Brzycki (1993) are the most widely cited in the strength training literature and tend to agree closely for sets in the 3–6 rep range. Both model the 1RM as a function that increases roughly linearly with reps performed, but they diverge as rep counts climb above 8–10.</p>
+        <p>Lander's formula is slightly more conservative — it produces a lower 1RM estimate from the same input, which some lifters find more accurate when training at higher rep ranges. Lombardi applies a fractional exponent (reps^0.10) to the rep count, which compresses the curve and makes the formula more forgiving on higher rep sets. O'Conner is the simplest of the five, using a flat scaling factor that consistently produces slightly lower estimates than Epley.</p>
+        <p>Using the average of all five formulas smooths out the individual biases and tends to produce estimates that are more consistent across a wider range of rep counts. No formula is universally correct — every lifter's fatigue curve is slightly different. If you know from experience that one formula consistently tracks your actual performance better than the others, you can weight it accordingly. The plate calculator and percentage chart in this tool use the averaged estimate by default.</p>
+      </section>
+
+      <section>
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>Which formula is most accurate?</h3>
+            <p class="faq-answer">Brzycki and Epley are the most validated in research. For sets under 10 reps, both tend to come within 5% of a true 1RM. They diverge more at higher rep counts, which is why the average across formulas is more reliable than any single one.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Should I test my actual one-rep max?</h3>
+            <p class="faq-answer">Only if you're experienced, well-warmed-up, and have a spotter or safety equipment. For programming purposes, an estimate from a 3–5 rep set is safer and nearly as useful. Pushing to a true max taxes your central nervous system and takes longer to recover from than a hard working set.</p>
+          </div>
+          <div class="faq-item">
+            <h3>How often should I recalculate?</h3>
+            <p class="faq-answer">Every 4–6 weeks, or whenever you hit a notable PR on a working set. If you're on a linear progression program, your weights are going up frequently enough that you may want to update monthly.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Why does the plate calculator matter?</h3>
+            <p class="faq-answer">Mental math between sets is error-prone and wastes time. Seeing the exact plate breakdown eliminates mistakes, especially for odd weights like 237.5 lb. The visual diagram also makes it faster to load the bar correctly.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Can I use this for kg?</h3>
+            <p class="faq-answer">Yes, toggle to kg at the top. All calculations and plate sizes adjust automatically. The plate options switch to standard kg denominations (25, 20, 15, 10, 5, 2.5, 1.25 kg) with a 20 kg barbell.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <span class="footer-tagline">Built for lifters who just want to lift.</span>
+    <div class="footer-links">
+      <a href="/5x5/">5×5 Tracker</a>
+      <a href="/run/">C25K Runner</a>
+      <a href="/hiit/">HIIT Timer</a>
+      <a href="/1rm/">1RM Calc</a>
+    </div>
+    <span class="footer-copy">© fivebyfive.fit</span>
+  </footer>
+
+  <script>
+    /* ── Constants ─────────────────────────────────────────────────── */
+    const STORAGE_KEY = 'fivebyfive_1rm';
+
+    const PCT_ROWS = [
+      { pct: 100, reps: '1' },
+      { pct: 95,  reps: '2' },
+      { pct: 90,  reps: '3–4' },
+      { pct: 85,  reps: '5' },
+      { pct: 80,  reps: '6–8' },
+      { pct: 75,  reps: '8–10' },
+      { pct: 70,  reps: '10–12' },
+      { pct: 65,  reps: '12–15' },
+      { pct: 60,  reps: '15–20' },
+      { pct: 55,  reps: '20+' },
+      { pct: 50,  reps: '20+' },
+    ];
+
+    const PLATES_LB = [45, 35, 25, 10, 5, 2.5];
+    const PLATES_KG = [25, 20, 15, 10, 5, 2.5, 1.25];
+    const BAR_LB = 45;
+    const BAR_KG = 20;
+
+    // Plate visual widths in px
+    const PLATE_WIDTH_LB = { 45: 14, 35: 12, 25: 10, 10: 8, 5: 7, 2.5: 6 };
+    const PLATE_WIDTH_KG = { 25: 14, 20: 12, 15: 11, 10: 9, 5: 7, 2.5: 6, 1.25: 5 };
+
+    // Plate colors
+    const PLATE_COLOR = {
+      // lb
+      45: { bg: '#ef4444', text: '#fff' },
+      35: { bg: '#3b82f6', text: '#fff' },
+      25: { bg: '#22c55e', text: '#fff' },
+      10: { bg: '#eab308', text: '#0a0a0b' },
+      5:  { bg: '#6b7280', text: '#fff' },
+      2.5:{ bg: 'transparent', text: '#e8e6e3', border: '#e8e6e3' },
+      // kg (same denominations map to same colors by weight bucket)
+      20: { bg: '#3b82f6', text: '#fff' },
+      15: { bg: '#f97316', text: '#fff' },
+      1.25: { bg: 'transparent', text: '#e8e6e3', border: '#e8e6e3' },
+    };
+
+    /* ── State ─────────────────────────────────────────────────────── */
+    let state = { unit: 'lb', lastWeight: null, lastReps: null };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            state = Object.assign(state, parsed);
+          }
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) { /* ignore */ }
+    }
+
+    /* ── Rounding ──────────────────────────────────────────────────── */
+    function roundTo2_5(v) {
+      return Math.round(v / 2.5) * 2.5;
+    }
+
+    /* ── Formulas ──────────────────────────────────────────────────── */
+    function calcFormulas(weight, reps) {
+      if (reps === 1) {
+        return { epley: weight, brzycki: weight, lander: weight, lombardi: weight, oconner: weight };
+      }
+      const epley    = weight * (1 + reps / 30);
+      const brzycki  = weight * (36 / (37 - reps));
+      const lander   = (100 * weight) / (101.3 - 2.67123 * reps);
+      const lombardi = weight * Math.pow(reps, 0.10);
+      const oconner  = weight * (1 + reps / 40);
+      return { epley, brzycki, lander, lombardi, oconner };
+    }
+
+    function calcAverage(formulas) {
+      const vals = Object.values(formulas);
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    }
+
+    /* ── Plate greedy algorithm ────────────────────────────────────── */
+    function calcPlates(target, unit) {
+      const barWeight = unit === 'lb' ? BAR_LB : BAR_KG;
+      const plates    = unit === 'lb' ? PLATES_LB : PLATES_KG;
+
+      if (target <= barWeight) return null; // below barbell
+
+      let remaining = (target - barWeight) / 2;
+      const result = [];
+      for (const p of plates) {
+        if (remaining <= 0) break;
+        const count = Math.floor(remaining / p + 0.0001); // float safety
+        if (count > 0) {
+          result.push({ plate: p, count });
+          remaining -= count * p;
+          remaining = Math.round(remaining * 1000) / 1000; // float clean
+        }
+      }
+
+      // actual achieved weight
+      const totalPlateWeight = result.reduce((s, r) => s + r.plate * r.count * 2, 0);
+      const achieved = barWeight + totalPlateWeight;
+      return { plates: result, achieved, barWeight };
+    }
+
+    /* ── Plate color helper ────────────────────────────────────────── */
+    function getPlateColor(plateVal) {
+      if (PLATE_COLOR[plateVal]) return PLATE_COLOR[plateVal];
+      // fallback
+      return { bg: '#6b7280', text: '#fff' };
+    }
+
+    /* ── Plate widths ──────────────────────────────────────────────── */
+    function getPlateWidth(plateVal, unit) {
+      const map = unit === 'lb' ? PLATE_WIDTH_LB : PLATE_WIDTH_KG;
+      return map[plateVal] || 6;
+    }
+
+    /* ── Render plate diagram ──────────────────────────────────────── */
+    function renderPlates(target, unit) {
+      const output = document.getElementById('plate-output');
+      const barWeight = unit === 'lb' ? BAR_LB : BAR_KG;
+      const unitLabel = unit;
+
+      if (!target || target <= 0) {
+        output.innerHTML = '';
+        return;
+      }
+
+      if (target <= barWeight) {
+        output.innerHTML = `<p class="plate-warning"><span class="warn-tag">note</span>Weight is below or equal to the barbell (${barWeight} ${unitLabel}). No plates needed.</p>`;
+        return;
+      }
+
+      const calc = calcPlates(target, unit);
+      if (!calc) {
+        output.innerHTML = `<p class="plate-warning"><span class="warn-tag">note</span>Weight below barbell.</p>`;
+        return;
+      }
+
+      const { plates, achieved } = calc;
+      const perSide = (target - barWeight) / 2;
+
+      // Build plate breakdown text
+      let breakdownParts = [];
+      for (const { plate, count } of plates) {
+        breakdownParts.push(`<strong>${count}&times;&nbsp;${plate}${unitLabel}</strong>`);
+      }
+      const breakdownText = breakdownParts.length > 0
+        ? breakdownParts.join(' <span style="color:var(--border)">+</span> ') + ' per side'
+        : 'No plates';
+
+      // Nearest achievable notice
+      let noticeHtml = '';
+      if (Math.abs(achieved - target) > 0.01) {
+        noticeHtml = `<p class="plate-warning"><span class="warn-tag">nearest</span>Exact weight not achievable with standard plates. Showing <strong style="font-family:\'DM Mono\',monospace;color:var(--text)">${achieved} ${unitLabel}</strong>.</p>`;
+      }
+
+      // Build visual diagram
+      // Collect all plates (flattened) for diagram
+      let flatPlates = [];
+      for (const { plate, count } of plates) {
+        for (let i = 0; i < count; i++) flatPlates.push(plate);
+      }
+
+      function makePlateEl(plateVal) {
+        const color = getPlateColor(plateVal);
+        const w = getPlateWidth(plateVal, unit);
+        const isBorderOnly = plateVal === 2.5 || plateVal === 1.25;
+        const bg = isBorderOnly ? 'transparent' : (color.bg || '#6b7280');
+        const border = isBorderOnly ? `2px solid ${color.border || '#e8e6e3'}` : '2px solid transparent';
+        const textColor = color.text || '#fff';
+        const label = plateVal >= 10 ? String(plateVal) : (plateVal === 2.5 ? '2.5' : (plateVal === 1.25 ? '1.25' : String(plateVal)));
+        return `<div class="plate" style="width:${w}px;background:${bg};border:${border};color:${textColor};font-size:${w >= 10 ? '9' : '8'}px;"><span class="plate-text">${label}</span></div>`;
+      }
+
+      const leftPlatesHtml  = flatPlates.map(makePlateEl).join('');
+      const rightPlatesHtml = flatPlates.map(makePlateEl).join('');
+
+      const diagram = `
+        <div class="plate-diagram">
+          <div class="plates-left">${leftPlatesHtml}</div>
+          <div class="bar-collar-left"></div>
+          <div class="bar-sleeve-left"></div>
+          <div class="bar-center"></div>
+          <div class="bar-sleeve-right"></div>
+          <div class="bar-collar-right"></div>
+          <div class="plates-right">${rightPlatesHtml}</div>
+        </div>
+      `;
+
+      const perSideLabel = `<div class="plate-per-side"><strong>${roundTo2_5(perSide * 10) / 10 === perSide ? perSide : Math.round(perSide * 100) / 100} ${unitLabel}</strong> per side</div>`;
+
+      output.innerHTML = perSideLabel + diagram + `<div class="plate-breakdown">${breakdownText}</div>` + noticeHtml;
+    }
+
+    /* ── Render percentage table ───────────────────────────────────── */
+    function renderPctTable(est1rm, unit) {
+      const tbody = document.getElementById('pct-tbody');
+      tbody.innerHTML = '';
+      for (const row of PCT_ROWS) {
+        const w = roundTo2_5((row.pct / 100) * est1rm);
+        const tr = document.createElement('tr');
+        if (row.pct === 100) tr.classList.add('pct-accent');
+        tr.innerHTML = `
+          <td>${row.pct}%</td>
+          <td>${w} ${unit}</td>
+          <td>${row.reps}</td>
+        `;
+        tr.addEventListener('click', () => {
+          loadIntoPlateCalc(w);
+        });
+        tbody.appendChild(tr);
+      }
+    }
+
+    /* ── Load weight into plate calculator ────────────────────────── */
+    function loadIntoPlateCalc(w) {
+      document.getElementById('plate-target').value = w;
+      document.getElementById('plate-section').classList.remove('hidden');
+      renderPlates(w, state.unit);
+      // Scroll to plate section
+      document.getElementById('plate-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ── Main calculation + render ─────────────────────────────────── */
+    let currentEst1rm = null;
+
+    function recalc() {
+      const weightRaw = parseFloat(document.getElementById('input-weight').value);
+      const repsRaw   = parseInt(document.getElementById('input-reps').value, 10);
+
+      const unitSuffix = state.unit;
+
+      const resultMain  = document.getElementById('result-main');
+      const pctSection  = document.getElementById('pct-section');
+
+      const formulaIds = ['f-epley', 'f-brzycki', 'f-lander', 'f-lombardi', 'f-oconner'];
+      const formulaKeys = ['epley', 'brzycki', 'lander', 'lombardi', 'oconner'];
+
+      if (!weightRaw || weightRaw <= 0 || !repsRaw || repsRaw < 1 || repsRaw > 20) {
+        // Clear results
+        resultMain.innerHTML = `<span class="result-placeholder">—</span>`;
+        for (const id of formulaIds) {
+          document.getElementById(id).innerHTML = `<span style="color:var(--border)">—</span>`;
+        }
+        pctSection.classList.add('hidden');
+        currentEst1rm = null;
+        return;
+      }
+
+      const formulas = calcFormulas(weightRaw, repsRaw);
+      const avg = calcAverage(formulas);
+      const est1rm = roundTo2_5(avg);
+      currentEst1rm = est1rm;
+
+      // Display estimated 1RM
+      resultMain.innerHTML = `<span class="result-value">${est1rm}<span class="result-unit">${unitSuffix}</span></span>`;
+
+      // Display each formula
+      formulaKeys.forEach((key, i) => {
+        const val = roundTo2_5(formulas[key]);
+        document.getElementById(formulaIds[i]).innerHTML = `${val}<span class="formula-unit"> ${unitSuffix}</span>`;
+      });
+
+      // Render percentage table
+      renderPctTable(est1rm, unitSuffix);
+      pctSection.classList.remove('hidden');
+
+      // Save state
+      state.lastWeight = weightRaw;
+      state.lastReps   = repsRaw;
+      saveState();
+    }
+
+    /* ── Unit toggle ───────────────────────────────────────────────── */
+    function setUnit(u) {
+      state.unit = u;
+      saveState();
+
+      document.getElementById('btn-lb').classList.toggle('active', u === 'lb');
+      document.getElementById('btn-kg').classList.toggle('active', u === 'kg');
+
+      // Update barbell label
+      document.getElementById('barbell-label').textContent = u === 'lb' ? '45 lb bar' : '20 kg bar';
+
+      // Re-run calc
+      recalc();
+
+      // Re-render plate calc if open
+      const plateSection = document.getElementById('plate-section');
+      if (!plateSection.classList.contains('hidden')) {
+        const t = parseFloat(document.getElementById('plate-target').value);
+        if (t > 0) renderPlates(t, u);
+      }
+    }
+
+    /* ── Input wiring ──────────────────────────────────────────────── */
+    document.getElementById('input-weight').addEventListener('input', recalc);
+
+    document.getElementById('input-reps').addEventListener('input', function () {
+      const v = parseInt(this.value, 10);
+      if (v >= 1 && v <= 20) {
+        document.getElementById('reps-slider').value = v;
+      }
+      recalc();
+    });
+
+    document.getElementById('reps-slider').addEventListener('input', function () {
+      document.getElementById('input-reps').value = this.value;
+      recalc();
+    });
+
+    document.getElementById('plate-target').addEventListener('input', function () {
+      const t = parseFloat(this.value);
+      document.getElementById('plate-section').classList.remove('hidden');
+      renderPlates(t || 0, state.unit);
+    });
+
+    /* ── Init ──────────────────────────────────────────────────────── */
+    function init() {
+      loadState();
+
+      // Apply saved unit
+      document.getElementById('btn-lb').classList.toggle('active', state.unit === 'lb');
+      document.getElementById('btn-kg').classList.toggle('active', state.unit === 'kg');
+      document.getElementById('barbell-label').textContent = state.unit === 'lb' ? '45 lb bar' : '20 kg bar';
+
+      // Restore saved inputs
+      if (state.lastWeight) {
+        document.getElementById('input-weight').value = state.lastWeight;
+      }
+      if (state.lastReps) {
+        document.getElementById('input-reps').value = state.lastReps;
+        document.getElementById('reps-slider').value = state.lastReps;
+      }
+
+      recalc();
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

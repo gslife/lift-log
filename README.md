@@ -21,9 +21,9 @@ Tracks progress for the [StrongLifts 5×5](https://stronglifts.com/5x5/) barbell
 
 **Data:**
 - All state is saved to `localStorage` under the key `fivebyfive_data`
-- Settings → Export Save Data downloads a dated `.json` backup file
-- Settings → Import Save Data loads a previously exported `.json` file; prompts for confirmation before overwriting existing data
-- Settings → Reset All Data clears everything after confirmation
+- Config → Export Save Data downloads a dated `.json` backup file
+- Config → Import Save Data loads a previously exported `.json` file; prompts for confirmation before overwriting existing data
+- Config → Reset All Data clears everything after confirmation
 
 ## Running locally
 

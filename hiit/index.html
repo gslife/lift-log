@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free HIIT Interval Timer — Tabata, EMOM &amp; Custom Workouts | fivebyfive.fit</title>
+  <meta name="description" content="Free HIIT interval timer with audio cues. Supports Tabata, EMOM, and custom work/rest intervals. Save workouts, works in browser, no account needed.">
+  <link rel="canonical" href="https://fivebyfive.fit/hiit/">
+  <meta property="og:title" content="Free HIIT Interval Timer — fivebyfive.fit">
+  <meta property="og:description" content="Configurable HIIT timer with Tabata, EMOM, and custom intervals. Audio cues, saved workouts, no account.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fivebyfive.fit/hiit/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What's Tabata?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A specific protocol: 20 seconds maximum effort, 10 seconds rest, 8 rounds (4 minutes total). Developed by Dr. Izumi Tabata at the National Institute of Fitness and Sports in Tokyo. Deceptively brutal for a four-minute workout."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What exercises work for HIIT?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Any explosive or high-effort movement: burpees, jump squats, mountain climbers, kettlebell swings, sprints, battle ropes, box jumps. The exercise matters less than the effort level during work intervals."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long should a HIIT workout be?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "15–30 minutes is a typical range, including rest periods. The intensity makes up for shorter duration. Anything longer than 30–35 minutes of true HIIT suggests the work intervals aren't hard enough."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How often should I do HIIT?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "2–3 times per week maximum. Your nervous system and connective tissue need recovery between high-intensity sessions. More is not better here."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will the timer work with my screen locked?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The audio cues use the Web Audio API, which continues running in the background on most modern browsers. Keeping the tab active and screen on is the most reliable setup, especially on iOS."
+        }
+      }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="../assets/shared.css">
+  <style>
+    /* ── App Container ─────────────────────────────── */
+    #app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 32px 20px 40px;
+    }
+
+    /* ── Views ─────────────────────────────────────── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Setup View ────────────────────────────────── */
+    .setup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    .input-group input[type="number"],
+    .input-group input[type="text"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 22px;
+      font-weight: 500;
+      padding: 10px 14px;
+      width: 100%;
+      appearance: none;
+      -moz-appearance: textfield;
+      transition: border-color 0.15s;
+    }
+
+    .input-group input[type="number"]:focus,
+    .input-group input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .input-group input[type="number"]::-webkit-inner-spin-button,
+    .input-group input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }
+
+    /* ── Preset Chips ──────────────────────────────── */
+    .presets-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .chip:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .chip.chip-active {
+      background: var(--accent-dark);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Save Section ──────────────────────────────── */
+    .save-section {
+      margin-bottom: 24px;
+    }
+
+    .save-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    #save-name-wrap {
+      display: none;
+      margin-top: 10px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #save-name-wrap.visible {
+      display: flex;
+    }
+
+    #save-name-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      padding: 9px 12px;
+      transition: border-color 0.15s;
+    }
+
+    #save-name-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* ── Saved Workouts ────────────────────────────── */
+    .saved-section {
+      margin-bottom: 28px;
+    }
+
+    .saved-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .saved-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .saved-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .saved-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .saved-item-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .saved-item-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .saved-item-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* ── Buttons ───────────────────────────────────── */
+    .btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 10px 18px;
+      transition: opacity 0.15s, background 0.15s;
+    }
+
+    .btn:active { opacity: 0.8; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0b;
+      width: 100%;
+      padding: 14px;
+      font-size: 17px;
+      border-radius: 10px;
+    }
+
+    .btn-primary:hover { opacity: 0.9; }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 13px;
+      padding: 8px 14px;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+      background: var(--border);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--fail);
+      font-size: 13px;
+      padding: 7px 13px;
+    }
+
+    .btn-danger:hover {
+      background: var(--fail-dark);
+      border-color: var(--fail);
+    }
+
+    .btn-load {
+      background: var(--accent-dark);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 13px;
+      padding: 7px 13px;
+    }
+
+    .btn-load:hover { opacity: 0.85; }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 24px;
+      font-size: 15px;
+      border-radius: 10px;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--muted);
+    }
+
+    /* ── Active Timer View ─────────────────────────── */
+    .timer-view {
+      text-align: center;
+    }
+
+    .phase-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+
+    .phase-label.phase-prep   { color: var(--accent); }
+    .phase-label.phase-work   { color: var(--success); }
+    .phase-label.phase-rest   { color: var(--fail); }
+
+    .countdown-number {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(80px, 22vw, 120px);
+      font-weight: 500;
+      line-height: 1;
+      margin-bottom: 16px;
+      transition: color 0.2s;
+      letter-spacing: -2px;
+    }
+
+    .countdown-number.phase-prep  { color: var(--accent); }
+    .countdown-number.phase-work  { color: var(--success); }
+    .countdown-number.phase-rest  { color: var(--fail); }
+
+    .round-indicator {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .elapsed-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* ── Progress Bar ──────────────────────────────── */
+    .progress-wrap {
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 2px;
+      width: 100%;
+      transform-origin: left;
+      transition: background-color 0.2s;
+    }
+
+    .progress-bar.phase-prep  { background: var(--accent); }
+    .progress-bar.phase-work  { background: var(--success); }
+    .progress-bar.phase-rest  { background: var(--fail); }
+
+    /* ── Timer Controls ────────────────────────────── */
+    .timer-controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .timer-controls .btn-primary {
+      flex: 1;
+    }
+
+    .timer-controls .btn-outline {
+      width: auto;
+      flex-shrink: 0;
+    }
+
+    /* ── Completion View ───────────────────────────── */
+    .completion-view {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .completion-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .completion-total-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 52px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      line-height: 1;
+    }
+
+    .completion-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .completion-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .completion-stat-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .completion-stat-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .completion-emoji {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    /* ── No Saved Workouts ─────────────────────────── */
+    .no-saved {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Divider within app ────────────────────────── */
+    .app-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="/" class="logo">5×5</a>
+    <div class="site-nav-links">
+      <a href="/5x5/">5×5 Tracker</a>
+      <a href="/run/">Run</a>
+      <a href="/hiit/" class="active">HIIT Timer</a>
+      <a href="/1rm/">1RM Calc</a>
+    </div>
+  </nav>
+
+  <div class="content-wrap">
+    <div class="page-intro">
+      <h1>Free HIIT Interval Timer — Tabata, EMOM &amp; Custom Workouts</h1>
+      <p>A configurable interval timer for any high-intensity workout. Set your work and rest durations, choose your rounds, and hit Start. Audio cues fire at every transition so you can focus on the movement instead of the clock. Save your favourite setups and reload them in one tap.</p>
+    </div>
+  </div>
+
+  <hr class="content-divider">
+
+  <div id="app">
+
+    <!-- ── Setup View ─────────────────────────────── -->
+    <div id="view-setup" class="view active">
+
+      <div class="setup-grid">
+        <div class="input-group">
+          <label for="inp-work">Work (sec)</label>
+          <input type="number" id="inp-work" min="1" max="3600" value="20">
+        </div>
+        <div class="input-group">
+          <label for="inp-rest">Rest (sec)</label>
+          <input type="number" id="inp-rest" min="0" max="3600" value="10">
+        </div>
+        <div class="input-group">
+          <label for="inp-rounds">Rounds</label>
+          <input type="number" id="inp-rounds" min="1" max="99" value="8">
+        </div>
+        <div class="input-group">
+          <label for="inp-prep">Prep (sec)</label>
+          <input type="number" id="inp-prep" min="0" max="60" value="10">
+        </div>
+      </div>
+
+      <span class="presets-label">Quick presets</span>
+      <div class="preset-chips">
+        <button class="chip chip-active" data-preset="tabata">Tabata</button>
+        <button class="chip" data-preset="emom">EMOM</button>
+        <button class="chip" data-preset="30-30">30/30</button>
+        <button class="chip" data-preset="40-20">40/20</button>
+      </div>
+
+      <div class="save-section">
+        <div class="save-row">
+          <button class="btn btn-ghost" id="btn-save-toggle">Save Workout</button>
+        </div>
+        <div id="save-name-wrap">
+          <input type="text" id="save-name-input" placeholder="Workout name…" maxlength="40">
+          <button class="btn btn-ghost" id="btn-save-confirm">Save</button>
+        </div>
+      </div>
+
+      <div class="saved-section" id="saved-section">
+        <span class="saved-label">Saved workouts</span>
+        <div class="saved-list" id="saved-list"></div>
+      </div>
+
+      <hr class="app-divider">
+
+      <button class="btn btn-primary" id="btn-start">Start</button>
+    </div>
+
+    <!-- ── Active Timer View ──────────────────────── -->
+    <div id="view-timer" class="view timer-view">
+      <div class="phase-label phase-prep" id="phase-label">GET READY</div>
+      <div class="countdown-number phase-prep" id="countdown-number">10</div>
+      <div class="round-indicator" id="round-indicator">Round 1 of 8</div>
+      <div class="elapsed-time" id="elapsed-time">0:00 elapsed</div>
+      <div class="progress-wrap">
+        <div class="progress-bar phase-prep" id="progress-bar"></div>
+      </div>
+      <div class="timer-controls">
+        <button class="btn btn-primary" id="btn-pause">Pause</button>
+        <button class="btn btn-outline" id="btn-cancel">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ── Completion View ────────────────────────── -->
+    <div id="view-complete" class="view completion-view">
+      <span class="completion-emoji">🏁</span>
+      <div class="completion-heading">Workout Complete</div>
+      <div class="completion-total-time" id="complete-total-time">0:00</div>
+      <div class="completion-stats">
+        <div class="completion-stat">
+          <span class="completion-stat-label">Rounds completed</span>
+          <span class="completion-stat-value" id="complete-rounds">8</span>
+        </div>
+        <div class="completion-stat">
+          <span class="completion-stat-label">Total work time</span>
+          <span class="completion-stat-value" id="complete-work-time">160s</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-done">Done</button>
+    </div>
+
+  </div>
+
+  <hr class="content-divider">
+
+  <div class="content-wrap">
+    <div class="content-sections">
+
+      <section>
+        <h2>What is HIIT?</h2>
+        <p>High-intensity interval training is a structured approach to cardiovascular exercise built around alternating bursts of intense effort and recovery. The defining characteristic is that the work periods are genuinely hard — not a brisk jog, but near-maximum output. Sprint, drive, push. Then rest. Repeat.</p>
+        <p>Tabata is the most well-known HIIT protocol: 20 seconds of maximal effort followed by 10 seconds of rest, repeated 8 times for exactly 4 minutes. It was developed by Dr. Izumi Tabata in 1996 through research at the National Institute of Fitness and Sports in Tokyo, where it was shown to improve both aerobic and anaerobic capacity simultaneously. EMOM (every minute on the minute) is a popular variant from CrossFit: begin a fixed set of reps at the top of each minute, then rest for whatever time remains before the next minute starts.</p>
+        <p>The appeal of HIIT is efficiency. A well-structured 20-minute session — including rest periods — can produce cardiovascular and metabolic adaptations comparable to much longer steady-state cardio. The tradeoff is that genuine high-intensity intervals are taxing on the nervous system, joints, and connective tissue. Most people shouldn't exceed 2–3 HIIT sessions per week. If you can do it every day, the intervals probably aren't hard enough.</p>
+      </section>
+
+      <section>
+        <h2>How to Use This Timer</h2>
+        <p>Set your work time, rest time, number of rounds, and the prep countdown (a brief window before the first work interval begins — use it to get into position). Tap a preset chip to fill the inputs automatically for common formats, or dial in your own numbers for a custom session.</p>
+        <p>Hit Start. The timer runs automatically through every round, switching phases and firing audio cues at each transition. You don't need to watch the screen — the beeps tell you when to go and when to stop. When all rounds are done, the completion screen shows your total time and total work duration.</p>
+        <p>To save a configuration you use regularly, tap "Save Workout", enter a name, and hit Save. Saved workouts appear below the inputs and can be loaded or deleted at any time. Settings are stored in your browser's local storage — no account required.</p>
+      </section>
+
+      <section>
+        <h2>Common Questions</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <h3>What's Tabata?</h3>
+            <div class="faq-answer">A specific protocol: 20 seconds maximum effort, 10 seconds rest, 8 rounds (4 minutes total). Developed by Dr. Izumi Tabata at the National Institute of Fitness and Sports in Tokyo. Deceptively brutal for a four-minute workout.</div>
+          </div>
+          <div class="faq-item">
+            <h3>What exercises work for HIIT?</h3>
+            <div class="faq-answer">Any explosive or high-effort movement: burpees, jump squats, mountain climbers, kettlebell swings, sprints, battle ropes, box jumps. The exercise matters less than the effort level during work intervals.</div>
+          </div>
+          <div class="faq-item">
+            <h3>How long should a HIIT workout be?</h3>
+            <div class="faq-answer">15–30 minutes is a typical range, including rest periods. The intensity makes up for shorter duration. Anything longer than 30–35 minutes of true HIIT suggests the work intervals aren't hard enough.</div>
+          </div>
+          <div class="faq-item">
+            <h3>How often should I do HIIT?</h3>
+            <div class="faq-answer">2–3 times per week maximum. Your nervous system and connective tissue need recovery between high-intensity sessions. More is not better here.</div>
+          </div>
+          <div class="faq-item">
+            <h3>Will the timer work with my screen locked?</h3>
+            <div class="faq-answer">The audio cues use the Web Audio API, which continues running in the background on most modern browsers. Keeping the tab active and screen on is the most reliable setup, especially on iOS.</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <span class="footer-tagline">Built for lifters who just want to lift.</span>
+    <div class="footer-links">
+      <a href="/5x5/">5×5 Tracker</a>
+      <a href="/run/">C25K Runner</a>
+      <a href="/hiit/">HIIT Timer</a>
+      <a href="/1rm/">1RM Calc</a>
+    </div>
+    <span class="footer-copy">© fivebyfive.fit</span>
+  </footer>
+
+  <script>
+    /* ── Constants ────────────────────────────────────────────────── */
+    const LS_KEY = 'fivebyfive_hiit';
+
+    const PRESETS = {
+      'tabata': { work: 20, rest: 10, rounds: 8,  prep: 10 },
+      'emom':   { work: 60, rest: 0,  rounds: 10, prep: 10 },
+      '30-30':  { work: 30, rest: 30, rounds: 10, prep: 10 },
+      '40-20':  { work: 40, rest: 20, rounds: 8,  prep: 10 },
+    };
+
+    /* ── State ────────────────────────────────────────────────────── */
+    let timerState = null;
+    // timerState shape:
+    // { phase: 'prep'|'work'|'rest', round: number, totalRounds: number,
+    //   work: number, rest: number, prep: number,
+    //   remaining: number, phaseDuration: number,
+    //   elapsedSeconds: number, paused: boolean,
+    //   intervalId: number|null, lastTick: number }
+
+    /* ── Storage ──────────────────────────────────────────────────── */
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return { saved: [] };
+    }
+
+    function saveData(data) {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(data));
+      } catch (e) {}
+    }
+
+    /* ── Audio ────────────────────────────────────────────────────── */
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, duration, startTime, gainVal) {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+      gain.gain.setValueAtTime(gainVal || 0.3, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      osc.start(startTime);
+      osc.stop(startTime + duration + 0.01);
+    }
+
+    function beepWorkStart() {
+      const ctx = getAudioCtx();
+      const t = ctx.currentTime;
+      playTone(880, 0.1, t, 0.35);
+    }
+
+    function beepRestStart() {
+      const ctx = getAudioCtx();
+      const t = ctx.currentTime;
+      playTone(440, 0.08, t, 0.3);
+      playTone(440, 0.08, t + 0.18, 0.3);
+    }
+
+    function beepCountdown() {
+      const ctx = getAudioCtx();
+      const t = ctx.currentTime;
+      playTone(880, 0.08, t, 0.25);
+    }
+
+    function beepComplete() {
+      const ctx = getAudioCtx();
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, t);
+      osc.frequency.exponentialRampToValueAtTime(440, t + 0.5);
+      gain.gain.setValueAtTime(0.35, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+      osc.start(t);
+      osc.stop(t + 0.6);
+    }
+
+    /* ── Views ────────────────────────────────────────────────────── */
+    function showView(id) {
+      document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-' + id).classList.add('active');
+    }
+
+    /* ── Inputs ───────────────────────────────────────────────────── */
+    function getInputs() {
+      return {
+        work:   Math.max(1,  parseInt(document.getElementById('inp-work').value,   10) || 20),
+        rest:   Math.max(0,  parseInt(document.getElementById('inp-rest').value,   10) || 0),
+        rounds: Math.max(1,  parseInt(document.getElementById('inp-rounds').value, 10) || 8),
+        prep:   Math.max(0,  parseInt(document.getElementById('inp-prep').value,   10) || 10),
+      };
+    }
+
+    function setInputs(cfg) {
+      document.getElementById('inp-work').value   = cfg.work;
+      document.getElementById('inp-rest').value   = cfg.rest;
+      document.getElementById('inp-rounds').value = cfg.rounds;
+      document.getElementById('inp-prep').value   = cfg.prep;
+    }
+
+    /* ── Preset Chips ─────────────────────────────────────────────── */
+    function updateActiveChip() {
+      const inp = getInputs();
+      document.querySelectorAll('.chip').forEach(chip => {
+        const key = chip.dataset.preset;
+        const p = PRESETS[key];
+        const match = p.work === inp.work && p.rest === inp.rest &&
+                      p.rounds === inp.rounds && p.prep === inp.prep;
+        chip.classList.toggle('chip-active', match);
+      });
+    }
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const p = PRESETS[chip.dataset.preset];
+        if (p) {
+          setInputs(p);
+          updateActiveChip();
+        }
+      });
+    });
+
+    // Update chips on manual input change
+    ['inp-work', 'inp-rest', 'inp-rounds', 'inp-prep'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateActiveChip);
+    });
+
+    /* ── Save / Load ──────────────────────────────────────────────── */
+    function renderSaved() {
+      const data = loadData();
+      const list = document.getElementById('saved-list');
+      const section = document.getElementById('saved-section');
+
+      if (!data.saved || data.saved.length === 0) {
+        list.innerHTML = '<span class="no-saved">No saved workouts yet.</span>';
+        return;
+      }
+
+      list.innerHTML = '';
+      data.saved.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'saved-item';
+        const restLabel = item.rest === 0 ? 'no rest' : item.rest + 's rest';
+        div.innerHTML = `
+          <div class="saved-item-info">
+            <div class="saved-item-name">${escapeHtml(item.name)}</div>
+            <div class="saved-item-meta">${item.work}s work · ${restLabel} · ${item.rounds} rounds</div>
+          </div>
+          <div class="saved-item-actions">
+            <button class="btn btn-load" data-idx="${idx}">Load</button>
+            <button class="btn btn-danger" data-del="${idx}">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      list.querySelectorAll('[data-idx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const i = parseInt(btn.dataset.idx, 10);
+          const d = loadData();
+          if (d.saved[i]) {
+            setInputs(d.saved[i]);
+            updateActiveChip();
+          }
+        });
+      });
+
+      list.querySelectorAll('[data-del]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const i = parseInt(btn.dataset.del, 10);
+          const d = loadData();
+          d.saved.splice(i, 1);
+          saveData(d);
+          renderSaved();
+        });
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Save toggle
+    const btnSaveToggle = document.getElementById('btn-save-toggle');
+    const saveNameWrap  = document.getElementById('save-name-wrap');
+    const saveNameInput = document.getElementById('save-name-input');
+    const btnSaveConfirm = document.getElementById('btn-save-confirm');
+
+    btnSaveToggle.addEventListener('click', () => {
+      const visible = saveNameWrap.classList.toggle('visible');
+      if (visible) {
+        saveNameInput.value = '';
+        saveNameInput.focus();
+        btnSaveToggle.textContent = 'Cancel';
+      } else {
+        btnSaveToggle.textContent = 'Save Workout';
+      }
+    });
+
+    function doSave() {
+      const name = saveNameInput.value.trim();
+      if (!name) { saveNameInput.focus(); return; }
+      const cfg = getInputs();
+      cfg.name = name;
+      const d = loadData();
+      d.saved.push(cfg);
+      saveData(d);
+      saveNameWrap.classList.remove('visible');
+      btnSaveToggle.textContent = 'Save Workout';
+      renderSaved();
+    }
+
+    btnSaveConfirm.addEventListener('click', doSave);
+    saveNameInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); });
+
+    /* ── Timer Logic ──────────────────────────────────────────────── */
+    function formatTime(totalSeconds) {
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      return m + ':' + String(s).padStart(2, '0');
+    }
+
+    function updateTimerUI() {
+      if (!timerState) return;
+      const { phase, round, totalRounds, remaining, phaseDuration, elapsedSeconds } = timerState;
+
+      // Phase label + color class
+      const phaseEl = document.getElementById('phase-label');
+      const countEl = document.getElementById('countdown-number');
+      const progEl  = document.getElementById('progress-bar');
+
+      const phaseClass = 'phase-' + phase;
+      phaseEl.className = 'phase-label ' + phaseClass;
+      countEl.className = 'countdown-number ' + phaseClass;
+      progEl.className  = 'progress-bar ' + phaseClass;
+
+      const phaseText = phase === 'prep' ? 'GET READY' : phase === 'work' ? 'WORK' : 'REST';
+      phaseEl.textContent = phaseText;
+
+      // Countdown number
+      countEl.textContent = remaining;
+
+      // Round indicator (prep doesn't count as a round in progress)
+      const roundEl = document.getElementById('round-indicator');
+      if (phase === 'prep') {
+        roundEl.textContent = 'Get ready — Round 1 of ' + totalRounds;
+      } else {
+        roundEl.textContent = 'Round ' + round + ' of ' + totalRounds;
+      }
+
+      // Elapsed
+      document.getElementById('elapsed-time').textContent = formatTime(elapsedSeconds) + ' elapsed';
+
+      // Progress bar — fraction of current phase elapsed
+      const elapsed = phaseDuration - remaining;
+      const fraction = phaseDuration > 0 ? Math.max(0, Math.min(1, elapsed / phaseDuration)) : 1;
+      progEl.style.transform = 'scaleX(' + fraction + ')';
+    }
+
+    function advancePhase() {
+      if (!timerState) return;
+      const { phase, round, totalRounds, work, rest, prep } = timerState;
+
+      // Countdown beeps should have been fired by tick; now transition
+      if (phase === 'prep') {
+        // Move to work round 1
+        timerState.phase = 'work';
+        timerState.round = 1;
+        timerState.remaining = work;
+        timerState.phaseDuration = work;
+        beepWorkStart();
+      } else if (phase === 'work') {
+        if (rest > 0) {
+          timerState.phase = 'rest';
+          timerState.remaining = rest;
+          timerState.phaseDuration = rest;
+          beepRestStart();
+        } else {
+          // No rest: go straight to next round or complete
+          if (round >= totalRounds) {
+            finishWorkout();
+            return;
+          }
+          timerState.round = round + 1;
+          timerState.phase = 'work';
+          timerState.remaining = work;
+          timerState.phaseDuration = work;
+          beepWorkStart();
+        }
+      } else if (phase === 'rest') {
+        if (round >= totalRounds) {
+          finishWorkout();
+          return;
+        }
+        timerState.round = round + 1;
+        timerState.phase = 'work';
+        timerState.remaining = work;
+        timerState.phaseDuration = work;
+        beepWorkStart();
+      }
+
+      updateTimerUI();
+    }
+
+    function tick() {
+      if (!timerState || timerState.paused) return;
+
+      const now = Date.now();
+      const delta = Math.floor((now - timerState.lastTick) / 1000);
+      if (delta < 1) return;
+      timerState.lastTick += delta * 1000;
+      timerState.elapsedSeconds += delta;
+
+      timerState.remaining -= delta;
+
+      // Countdown beeps for last 3 seconds (fire on each second: 3, 2, 1)
+      if (timerState.remaining <= 3 && timerState.remaining >= 1) {
+        beepCountdown();
+      }
+
+      if (timerState.remaining <= 0) {
+        timerState.remaining = 0;
+        updateTimerUI();
+        advancePhase();
+      } else {
+        updateTimerUI();
+      }
+    }
+
+    function startTimer() {
+      const cfg = getInputs();
+      const hasPrep = cfg.prep > 0;
+
+      timerState = {
+        phase:         hasPrep ? 'prep' : 'work',
+        round:         hasPrep ? 0 : 1,
+        totalRounds:   cfg.rounds,
+        work:          cfg.work,
+        rest:          cfg.rest,
+        prep:          cfg.prep,
+        remaining:     hasPrep ? cfg.prep : cfg.work,
+        phaseDuration: hasPrep ? cfg.prep : cfg.work,
+        elapsedSeconds: 0,
+        paused:        false,
+        lastTick:      Date.now(),
+        intervalId:    null,
+        workSeconds:   cfg.work,  // for completion stats
+      };
+
+      if (!hasPrep) {
+        beepWorkStart();
+      }
+
+      timerState.intervalId = setInterval(tick, 250);
+      showView('timer');
+      updateTimerUI();
+      document.getElementById('btn-pause').textContent = 'Pause';
+    }
+
+    function finishWorkout() {
+      if (!timerState) return;
+      clearInterval(timerState.intervalId);
+      beepComplete();
+
+      const totalTime = timerState.elapsedSeconds;
+      const rounds = timerState.totalRounds;
+      const totalWork = rounds * timerState.work;
+
+      document.getElementById('complete-total-time').textContent = formatTime(totalTime);
+      document.getElementById('complete-rounds').textContent = rounds;
+      document.getElementById('complete-work-time').textContent = totalWork + 's';
+
+      timerState = null;
+      showView('complete');
+    }
+
+    function pauseResume() {
+      if (!timerState) return;
+      timerState.paused = !timerState.paused;
+      if (!timerState.paused) {
+        timerState.lastTick = Date.now();
+      }
+      document.getElementById('btn-pause').textContent = timerState.paused ? 'Resume' : 'Pause';
+    }
+
+    function cancelTimer() {
+      if (timerState) {
+        clearInterval(timerState.intervalId);
+        timerState = null;
+      }
+      showView('setup');
+    }
+
+    /* ── Button Wiring ────────────────────────────────────────────── */
+    document.getElementById('btn-start').addEventListener('click', () => {
+      // Resume audio context on user gesture
+      getAudioCtx();
+      startTimer();
+    });
+
+    document.getElementById('btn-pause').addEventListener('click', pauseResume);
+    document.getElementById('btn-cancel').addEventListener('click', cancelTimer);
+    document.getElementById('btn-done').addEventListener('click', () => showView('setup'));
+
+    /* ── Init ─────────────────────────────────────────────────────── */
+    renderSaved();
+    updateActiveChip();
+  </script>
+</body>
+</html>
