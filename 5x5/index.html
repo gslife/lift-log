@@ -966,10 +966,10 @@
       const cur = ex.completedSets[si];
       if (cur === null) {
         ex.completedSets[si] = true;
-        if (!ex.completedSets.every(s => s !== null)) { timerExerciseIdx = ei; startTimer(REST_SECONDS); }
+        if (!ex.completedSets.every(s => s !== null)) { startTimer(REST_SECONDS); timerExerciseIdx = ei; }
       } else if (cur === true) {
         ex.completedSets[si] = false;
-        if (!ex.completedSets.every(s => s !== null)) { timerExerciseIdx = ei; startTimer(FAIL_REST_SECONDS); } else stopTimer();
+        if (!ex.completedSets.every(s => s !== null)) { startTimer(FAIL_REST_SECONDS); timerExerciseIdx = ei; } else stopTimer();
       } else {
         ex.completedSets[si] = null;
         stopTimer();
