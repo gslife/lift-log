@@ -783,7 +783,7 @@
     ];
 
     // ── State ────────────────────────────────────────────────────────
-    let state, activeWorkout = null, timerInterval = null, timerSeconds = null, currentView = 'home';
+    let state, activeWorkout = null, timerInterval = null, timerSeconds = null, timerEnd = null, currentView = 'home';
 
     function freshState() {
       return {
@@ -827,20 +827,22 @@
     // ── Timer ────────────────────────────────────────────────────────
     function startTimer(seconds) {
       stopTimer();
+      timerEnd = Date.now() + seconds * 1000;
       timerSeconds = seconds;
       updateTimerDisplay();
       const bar = $('#timer-bar');
       if (bar) bar.classList.add('active');
       timerInterval = setInterval(() => {
-        timerSeconds--;
+        timerSeconds = Math.max(0, Math.round((timerEnd - Date.now()) / 1000));
         if (timerSeconds <= 0) { stopTimer(); return; }
         updateTimerDisplay();
-      }, 1000);
+      }, 500);
     }
 
     function stopTimer() {
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       timerSeconds = null;
+      timerEnd = null;
       const bar = $('#timer-bar');
       if (bar) bar.classList.remove('active');
     }
@@ -851,6 +853,17 @@
         el.textContent = `${Math.floor(timerSeconds / 60)}:${String(timerSeconds % 60).padStart(2, '0')}`;
       }
     }
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && timerEnd !== null) {
+        timerSeconds = Math.max(0, Math.round((timerEnd - Date.now()) / 1000));
+        if (timerSeconds <= 0) {
+          stopTimer();
+        } else {
+          updateTimerDisplay();
+        }
+      }
+    });
 
     // ── Render: Home ─────────────────────────────────────────────────
     function renderHome() {
