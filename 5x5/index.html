@@ -278,17 +278,12 @@
     }
 
     .timer-bar {
-      margin-bottom: 20px;
+      margin: 12px 0 8px;
       padding: 12px 16px;
       background: var(--surface);
       border-radius: 12px;
       border: 1px solid rgba(212, 245, 52, 0.2);
       animation: timerPulse 2s ease infinite;
-      display: none;
-    }
-
-    .timer-bar.active {
-      display: block;
     }
 
     .timer-inner {
@@ -783,7 +778,7 @@
     ];
 
     // ── State ────────────────────────────────────────────────────────
-    let state, activeWorkout = null, timerInterval = null, timerSeconds = null, timerEnd = null, currentView = 'home';
+    let state, activeWorkout = null, timerInterval = null, timerSeconds = null, timerEnd = null, timerExerciseIdx = null, currentView = 'home';
 
     function freshState() {
       return {
@@ -829,12 +824,9 @@
       stopTimer();
       timerEnd = Date.now() + seconds * 1000;
       timerSeconds = seconds;
-      updateTimerDisplay();
-      const bar = $('#timer-bar');
-      if (bar) bar.classList.add('active');
       timerInterval = setInterval(() => {
         timerSeconds = Math.max(0, Math.round((timerEnd - Date.now()) / 1000));
-        if (timerSeconds <= 0) { stopTimer(); return; }
+        if (timerSeconds <= 0) { stopTimer(); if (currentView === 'workout') renderWorkout(); return; }
         updateTimerDisplay();
       }, 500);
     }
@@ -843,9 +835,10 @@
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
       timerSeconds = null;
       timerEnd = null;
-      const bar = $('#timer-bar');
-      if (bar) bar.classList.remove('active');
+      timerExerciseIdx = null;
     }
+
+    function skipTimer() { stopTimer(); renderWorkout(); }
 
     function updateTimerDisplay() {
       const el = $('#timer-value');
@@ -859,6 +852,7 @@
         timerSeconds = Math.max(0, Math.round((timerEnd - Date.now()) / 1000));
         if (timerSeconds <= 0) {
           stopTimer();
+          if (currentView === 'workout') renderWorkout();
         } else {
           updateTimerDisplay();
         }
@@ -891,10 +885,12 @@
       const w = activeWorkout;
       const allComplete = w.exercises.every(ex => ex.completedSets.every(s => s !== null));
 
-      let h = `<div class="workout-header"><button class="btn-cancel" onclick="cancelWorkout()">✕</button><span class="workout-title">Workout ${w.type}</span><div style="width:36px"></div></div>
-    <div class="timer-bar" id="timer-bar"><div class="timer-inner"><span class="timer-label">Rest</span><span class="timer-value" id="timer-value">0:00</span><button class="btn-skip" onclick="stopTimer()">Skip</button></div></div>`;
+      let h = `<div class="workout-header"><button class="btn-cancel" onclick="cancelWorkout()">✕</button><span class="workout-title">Workout ${w.type}</span><div style="width:36px"></div></div>`;
 
       w.exercises.forEach((ex, ei) => {
+        if (timerSeconds !== null && timerExerciseIdx === ei) {
+          h += `<div class="timer-bar" id="timer-bar"><div class="timer-inner"><span class="timer-label">Rest</span><span class="timer-value" id="timer-value">0:00</span><button class="btn-skip" onclick="skipTimer()">Skip</button></div></div>`;
+        }
         h += `<div class="ex-block anim-up" style="animation-delay:${ei * 60}ms"><div class="ex-header"><span class="ex-name">${ex.name}</span><span class="ex-weight">${ex.weight} lb</span></div><div class="sets-row">`;
         ex.completedSets.forEach((s, si) => {
           const cls = s === true ? 'success' : s === false ? 'fail' : '';
@@ -907,7 +903,7 @@
       h += `<button class="btn-finish" ${allComplete ? '' : 'disabled'} onclick="finishWorkout()">Finish Workout</button>`;
       $('#view-workout').innerHTML = h;
 
-      if (timerSeconds !== null) { $('#timer-bar')?.classList.add('active'); updateTimerDisplay(); }
+      if (timerSeconds !== null) updateTimerDisplay();
     }
 
     // ── Render: History ──────────────────────────────────────────────
@@ -970,10 +966,10 @@
       const cur = ex.completedSets[si];
       if (cur === null) {
         ex.completedSets[si] = true;
-        if (!ex.completedSets.every(s => s !== null)) startTimer(REST_SECONDS);
+        if (!ex.completedSets.every(s => s !== null)) { timerExerciseIdx = ei; startTimer(REST_SECONDS); }
       } else if (cur === true) {
         ex.completedSets[si] = false;
-        if (!ex.completedSets.every(s => s !== null)) startTimer(FAIL_REST_SECONDS); else stopTimer();
+        if (!ex.completedSets.every(s => s !== null)) { timerExerciseIdx = ei; startTimer(FAIL_REST_SECONDS); } else stopTimer();
       } else {
         ex.completedSets[si] = null;
         stopTimer();
