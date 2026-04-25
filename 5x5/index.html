@@ -819,14 +819,34 @@
       renderView(viewId);
     }
 
+    // ── Notifications ────────────────────────────────────────────────
+    function requestNotifPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    }
+
+    function notifyRestDone(exerciseName) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const body = exerciseName ? `Time to lift — ${exerciseName}` : 'Time to lift';
+      new Notification('Rest complete', { body });
+    }
+
     // ── Timer ────────────────────────────────────────────────────────
     function startTimer(seconds) {
+      requestNotifPermission();
       stopTimer();
       timerEnd = Date.now() + seconds * 1000;
       timerSeconds = seconds;
       timerInterval = setInterval(() => {
         timerSeconds = Math.max(0, Math.round((timerEnd - Date.now()) / 1000));
-        if (timerSeconds <= 0) { stopTimer(); if (currentView === 'workout') renderWorkout(); return; }
+        if (timerSeconds <= 0) {
+          const exName = timerExerciseIdx !== null && activeWorkout ? activeWorkout.exercises[timerExerciseIdx]?.name : null;
+          stopTimer();
+          notifyRestDone(exName);
+          if (currentView === 'workout') renderWorkout();
+          return;
+        }
         updateTimerDisplay();
       }, 500);
     }
@@ -851,7 +871,9 @@
       if (!document.hidden && timerEnd !== null) {
         timerSeconds = Math.max(0, Math.round((timerEnd - Date.now()) / 1000));
         if (timerSeconds <= 0) {
+          const exName = timerExerciseIdx !== null && activeWorkout ? activeWorkout.exercises[timerExerciseIdx]?.name : null;
           stopTimer();
+          notifyRestDone(exName);
           if (currentView === 'workout') renderWorkout();
         } else {
           updateTimerDisplay();
